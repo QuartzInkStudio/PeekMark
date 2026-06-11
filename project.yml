@@ -1,0 +1,62 @@
+name: QuickMark
+options:
+  bundleIdPrefix: app.quickmark
+  deploymentTarget:
+    macOS: "14.0"
+  xcodeVersion: "16"
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+packages:
+  QuickMarkCore:
+    path: QuickMarkCore
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+
+targets:
+  QuickMark:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: QuickMarkApp/Sources
+        createIntermediateGroups: true
+    dependencies:
+      - package: QuickMarkCore
+        product: QuickMarkCore
+      - target: QuickMarkQL
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.quickmark.QuickMark
+        PRODUCT_NAME: QuickMark
+        INFOPLIST_FILE: QuickMarkApp/Info.plist
+        CODE_SIGN_ENTITLEMENTS: QuickMarkApp/QuickMarkApp.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    entitlements:
+      path: QuickMarkApp/QuickMarkApp.entitlements
+
+  QuickMarkQL:
+    type: app-extension
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: QuickMarkQL/Sources
+        createIntermediateGroups: true
+    dependencies:
+      - package: QuickMarkCore
+        product: QuickMarkCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.quickmark.QuickMark.QuickMarkQL
+        PRODUCT_NAME: QuickMarkQL
+        INFOPLIST_FILE: QuickMarkQL/Info.plist
+        CODE_SIGN_ENTITLEMENTS: QuickMarkQL/QuickMarkQL.entitlements
+    entitlements:
+      path: QuickMarkQL/QuickMarkQL.entitlements

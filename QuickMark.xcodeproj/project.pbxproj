@@ -1,0 +1,497 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		12CBB9E93CFCE4DC14FC1173 /* QuickMarkCore in Frameworks */ = {isa = PBXBuildFile; productRef = 021DD69351E7FEA14C9F3874 /* QuickMarkCore */; };
+		14F2956604B70B4CEC88C8A5 /* QuickMarkQLExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC10EC4B656451105042CF1 /* QuickMarkQLExtension.swift */; };
+		3B4F36159F09EA35AD79201A /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D44DD483E76310E64C5935CF /* PreviewViewController.swift */; };
+		7A8332709B185220CE22E06F /* QuickMarkCore in Frameworks */ = {isa = PBXBuildFile; productRef = E820D5389953F2A64658CAD8 /* QuickMarkCore */; };
+		90760405E7DE0F86167CB1D0 /* QuickMarkQL.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F05A8C69036C5546C2A6C924 /* QuickMarkQL.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		ADEC1D7902C1B86A891725B7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 285F1CCC0105220D493E2719 /* ContentView.swift */; };
+		C921A55611646168F6BBA90E /* QuickMarkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB9F2494856EB2E8C495231 /* QuickMarkApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		83137F5EBF85EB3846591D77 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B7117A5C0B60D0F71FCD1A5E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CE802359699499CDDDBE1FA2;
+			remoteInfo = QuickMarkQL;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CA66C3A76944738A4BBF3FA7 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				90760405E7DE0F86167CB1D0 /* QuickMarkQL.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		039DE6F516B91ED5DDFEEAA7 /* QuickMark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuickMark.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		285F1CCC0105220D493E2719 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		8518505E9865A38A2B0C8AF3 /* QuickMarkCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = QuickMarkCore; path = QuickMarkCore; sourceTree = SOURCE_ROOT; };
+		D44DD483E76310E64C5935CF /* PreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViewController.swift; sourceTree = "<group>"; };
+		F05A8C69036C5546C2A6C924 /* QuickMarkQL.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = QuickMarkQL.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FAC10EC4B656451105042CF1 /* QuickMarkQLExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickMarkQLExtension.swift; sourceTree = "<group>"; };
+		FCB9F2494856EB2E8C495231 /* QuickMarkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickMarkApp.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BA17C7D17806EA873A01055A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7A8332709B185220CE22E06F /* QuickMarkCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C6BE5DD62F9051E72E59FE25 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				12CBB9E93CFCE4DC14FC1173 /* QuickMarkCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0DCF90083F24F82E5C870E4D /* QuickMarkApp */ = {
+			isa = PBXGroup;
+			children = (
+				3A6859AF7A1A0CF0E7802766 /* Sources */,
+			);
+			path = QuickMarkApp;
+			sourceTree = "<group>";
+		};
+		13C830BF2A0007758A59055C /* QuickMarkQL */ = {
+			isa = PBXGroup;
+			children = (
+				DA8E7D08DB89A57895C13B7D /* Sources */,
+			);
+			path = QuickMarkQL;
+			sourceTree = "<group>";
+		};
+		20E3225738EE284AE605E61C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				039DE6F516B91ED5DDFEEAA7 /* QuickMark.app */,
+				F05A8C69036C5546C2A6C924 /* QuickMarkQL.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3A6859AF7A1A0CF0E7802766 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				285F1CCC0105220D493E2719 /* ContentView.swift */,
+				FCB9F2494856EB2E8C495231 /* QuickMarkApp.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		DA8E7D08DB89A57895C13B7D /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				D44DD483E76310E64C5935CF /* PreviewViewController.swift */,
+				FAC10EC4B656451105042CF1 /* QuickMarkQLExtension.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		E099588C0CEF4D93F648EFEA = {
+			isa = PBXGroup;
+			children = (
+				FF472BF3858540BBDC6E286F /* Packages */,
+				0DCF90083F24F82E5C870E4D /* QuickMarkApp */,
+				13C830BF2A0007758A59055C /* QuickMarkQL */,
+				20E3225738EE284AE605E61C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		FF472BF3858540BBDC6E286F /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				8518505E9865A38A2B0C8AF3 /* QuickMarkCore */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B85FFBA54E4768FA892422DD /* QuickMark */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BEDEDDCBCE7CCEB8BE90A5A0 /* Build configuration list for PBXNativeTarget "QuickMark" */;
+			buildPhases = (
+				19354D7E9B7A0213784FFFF9 /* Sources */,
+				BA17C7D17806EA873A01055A /* Frameworks */,
+				CA66C3A76944738A4BBF3FA7 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				14A2183A7EE1EC0737B6AEBE /* PBXTargetDependency */,
+			);
+			name = QuickMark;
+			packageProductDependencies = (
+				E820D5389953F2A64658CAD8 /* QuickMarkCore */,
+			);
+			productName = QuickMark;
+			productReference = 039DE6F516B91ED5DDFEEAA7 /* QuickMark.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CE802359699499CDDDBE1FA2 /* QuickMarkQL */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9E12A87C2D1CF17822211B36 /* Build configuration list for PBXNativeTarget "QuickMarkQL" */;
+			buildPhases = (
+				982868655F9DFEAD2CAEEC44 /* Sources */,
+				C6BE5DD62F9051E72E59FE25 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = QuickMarkQL;
+			packageProductDependencies = (
+				021DD69351E7FEA14C9F3874 /* QuickMarkCore */,
+			);
+			productName = QuickMarkQL;
+			productReference = F05A8C69036C5546C2A6C924 /* QuickMarkQL.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B7117A5C0B60D0F71FCD1A5E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					B85FFBA54E4768FA892422DD = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					CE802359699499CDDDBE1FA2 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = E46A5D58C279DB0AFBAAD9B6 /* Build configuration list for PBXProject "QuickMark" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = E099588C0CEF4D93F648EFEA;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				295B41AF08539F5875A14963 /* XCLocalSwiftPackageReference "QuickMarkCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 20E3225738EE284AE605E61C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B85FFBA54E4768FA892422DD /* QuickMark */,
+				CE802359699499CDDDBE1FA2 /* QuickMarkQL */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		19354D7E9B7A0213784FFFF9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ADEC1D7902C1B86A891725B7 /* ContentView.swift in Sources */,
+				C921A55611646168F6BBA90E /* QuickMarkApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		982868655F9DFEAD2CAEEC44 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3B4F36159F09EA35AD79201A /* PreviewViewController.swift in Sources */,
+				14F2956604B70B4CEC88C8A5 /* QuickMarkQLExtension.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		14A2183A7EE1EC0737B6AEBE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CE802359699499CDDDBE1FA2 /* QuickMarkQL */;
+			targetProxy = 83137F5EBF85EB3846591D77 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		081ABCF6BB1F2760EC80D4C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		45057D1A5D5FEB97EC5C75E7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		66D532CC58723C5E4731BA5C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = QuickMarkQL/QuickMarkQL.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = QuickMarkQL/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.quickmark.QuickMark.QuickMarkQL;
+				PRODUCT_NAME = QuickMarkQL;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		97AA5DBFBDB95A407EEE36B7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = QuickMarkApp/QuickMarkApp.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = QuickMarkApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.quickmark.QuickMark;
+				PRODUCT_NAME = QuickMark;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		9EF8485A90055B8780955AB4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = QuickMarkQL/QuickMarkQL.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = QuickMarkQL/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.quickmark.QuickMark.QuickMarkQL;
+				PRODUCT_NAME = QuickMarkQL;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		AC5813D9CB96B401667782E4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = QuickMarkApp/QuickMarkApp.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = QuickMarkApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.quickmark.QuickMark;
+				PRODUCT_NAME = QuickMark;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9E12A87C2D1CF17822211B36 /* Build configuration list for PBXNativeTarget "QuickMarkQL" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9EF8485A90055B8780955AB4 /* Debug */,
+				66D532CC58723C5E4731BA5C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BEDEDDCBCE7CCEB8BE90A5A0 /* Build configuration list for PBXNativeTarget "QuickMark" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				97AA5DBFBDB95A407EEE36B7 /* Debug */,
+				AC5813D9CB96B401667782E4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E46A5D58C279DB0AFBAAD9B6 /* Build configuration list for PBXProject "QuickMark" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				45057D1A5D5FEB97EC5C75E7 /* Debug */,
+				081ABCF6BB1F2760EC80D4C6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		295B41AF08539F5875A14963 /* XCLocalSwiftPackageReference "QuickMarkCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = QuickMarkCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		021DD69351E7FEA14C9F3874 /* QuickMarkCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = QuickMarkCore;
+		};
+		E820D5389953F2A64658CAD8 /* QuickMarkCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = QuickMarkCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = B7117A5C0B60D0F71FCD1A5E /* Project object */;
+}
