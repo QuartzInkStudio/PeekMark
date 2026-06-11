@@ -40,9 +40,11 @@ struct ContentView: View {
         panel.allowsMultipleSelection = false
         panel.canChooseFiles = true
         panel.canChooseDirectories = false
+        let welcomeWindow = NSApp.keyWindow
         panel.begin { response in
             guard response == .OK, let url = panel.url else { return }
             MarkdownPreviewWindowController.shared.show(url: url)
+            welcomeWindow?.close()
         }
     }
 }

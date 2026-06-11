@@ -23,20 +23,20 @@ final class MarkdownPreviewWindowController: NSObject {
         let vc = SplitPreviewViewController()
         splitVC = vc
 
-        // Adapt to screen size: 80% of visible area, minimum 1000×700
-        let screen = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
-        let width  = max(1000, screen.width  * 0.82)
-        let height = max(700,  screen.height * 0.85)
+        // Fill the visible screen area with a small margin on each side
+        let screenFrame = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
+        let margin: CGFloat = 30
+        let winFrame = screenFrame.insetBy(dx: margin, dy: margin)
 
         let win = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: width, height: height),
+            contentRect: winFrame,
             styleMask: [.titled, .closable, .resizable, .miniaturizable],
             backing: .buffered,
             defer: false
         )
         win.title = "QuickMark"
         win.contentViewController = vc
-        win.center()
+        win.setFrameOrigin(NSPoint(x: winFrame.origin.x, y: winFrame.origin.y))
         win.isReleasedWhenClosed = false
         window = win
 
@@ -107,6 +107,14 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
                 return nil
             }
             return event
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            let w = self.splitView.bounds.width
+            if w > 0 {
+                self.splitView.setPosition(w * 0.40, ofDividerAt: 0)
+            }
         }
     }
 
@@ -210,7 +218,7 @@ final class EditorViewController: NSViewController {
 
         scrollView.documentView = textView
         view = scrollView
-        view.frame = NSRect(x: 0, y: 0, width: 480, height: 700)
+        view.frame = .zero
     }
 
     func setText(_ markdown: String) {
@@ -266,7 +274,7 @@ final class PreviewWebViewController: NSViewController, WKNavigationDelegate {
         webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = self
         view = webView
-        view.frame = NSRect(x: 0, y: 0, width: 520, height: 700)
+        view.frame = .zero
     }
 
     func render(markdown: String, baseURL: URL? = nil) {
