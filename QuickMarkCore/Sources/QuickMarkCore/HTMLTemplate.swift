@@ -1,0 +1,94 @@
+import Foundation
+
+/// Builds the self-contained HTML document that wraps rendered Markdown.
+///
+/// Loads `template.html`, `highlight.min.js`, and the light/dark highlight.js
+/// CSS themes from the package bundle, then substitutes placeholders.
+/// The resulting string is suitable for `WKWebView.loadHTMLString(_:baseURL:)`
+/// with no remote requests required.
+public enum HTMLTemplate {
+
+    // MARK: - Placeholders
+
+    private enum Placeholder {
+        static let title              = "{{TITLE}}"
+        static let content            = "{{CONTENT}}"
+        static let highlightJS        = "{{HIGHLIGHT_JS}}"
+        static let highlightLightCSS  = "{{HIGHLIGHT_LIGHT_CSS}}"
+        static let highlightDarkCSS   = "{{HIGHLIGHT_DARK_CSS}}"
+    }
+
+    // MARK: - Resource names
+
+    private enum Resource {
+        static let template       = (name: "template",        ext: "html")
+        static let highlightJS    = (name: "highlight.min",   ext: "js")
+        static let highlightLight = (name: "highlight-light.min", ext: "css")
+        static let highlightDark  = (name: "highlight-dark.min",  ext: "css")
+    }
+
+    // MARK: - Public API
+
+    /// Build a complete HTML document from rendered Markdown body HTML.
+    /// - Parameters:
+    ///   - bodyHTML: HTML already produced from the Markdown AST.
+    ///   - title:    Document `<title>`.
+    /// - Returns: A fully self-contained HTML string.
+    public static func build(bodyHTML: String, title: String) -> String {
+        var html = templateString()
+        html = html.replacingOccurrences(of: Placeholder.title,             with: htmlEscape(title))
+        html = html.replacingOccurrences(of: Placeholder.highlightLightCSS, with: loadResource(Resource.highlightLight))
+        html = html.replacingOccurrences(of: Placeholder.highlightDarkCSS,  with: loadResource(Resource.highlightDark))
+        html = html.replacingOccurrences(of: Placeholder.highlightJS,       with: loadResource(Resource.highlightJS))
+        // CONTENT replacement is done LAST so any literal "{{...}}" sequences
+        // inside the rendered Markdown cannot collide with placeholders.
+        html = html.replacingOccurrences(of: Placeholder.content,           with: bodyHTML)
+        return html
+    }
+
+    // MARK: - Resource loading
+
+    private static func templateString() -> String {
+        if let s = loadOptionalResource(Resource.template) { return s }
+        // Fallback minimal template — used only if the bundled resource is missing
+        // (e.g. when the library is consumed in an unusual build configuration).
+        return """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="color-scheme" content="light dark">
+        <title>\(Placeholder.title)</title>
+        <style>\(Placeholder.highlightLightCSS)\n@media (prefers-color-scheme: dark){\(Placeholder.highlightDarkCSS)}</style>
+        </head>
+        <body><article class="markdown-body">\(Placeholder.content)</article>
+        <script>\(Placeholder.highlightJS)</script>
+        <script>if(typeof hljs!=='undefined'){hljs.highlightAll();}</script>
+        </body></html>
+        """
+    }
+
+    private static func loadResource(_ res: (name: String, ext: String)) -> String {
+        loadOptionalResource(res) ?? ""
+    }
+
+    private static func loadOptionalResource(_ res: (name: String, ext: String)) -> String? {
+        guard let url = Bundle.module.url(forResource: res.name, withExtension: res.ext),
+              let data = try? Data(contentsOf: url),
+              let str = String(data: data, encoding: .utf8) else {
+            return nil
+        }
+        return str
+    }
+
+    // MARK: - Utilities
+
+    private static func htmlEscape(_ s: String) -> String {
+        s.replacingOccurrences(of: "&", with: "&amp;")
+         .replacingOccurrences(of: "<", with: "&lt;")
+         .replacingOccurrences(of: ">", with: "&gt;")
+         .replacingOccurrences(of: "\"", with: "&quot;")
+         .replacingOccurrences(of: "'", with: "&#39;")
+    }
+}

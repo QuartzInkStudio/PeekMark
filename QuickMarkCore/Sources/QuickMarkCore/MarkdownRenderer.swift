@@ -1,0 +1,34 @@
+import Foundation
+import Markdown
+
+/// Public entry point for QuickMarkCore.
+///
+/// Converts a Markdown source string into a self-contained HTML document
+/// suitable for `WKWebView.loadHTMLString(_:baseURL:)`.
+///
+/// The output document:
+/// - Begins with `<!DOCTYPE html>` (required — prevents WKWebView quirks mode).
+/// - Declares `<meta name="color-scheme" content="light dark">`.
+/// - Inlines every CSS rule and the highlight.js runtime — zero remote requests.
+/// - Wraps rendered Markdown in `<article class="markdown-body">…</article>`.
+public struct MarkdownRenderer {
+
+    public init() {}
+
+    /// Render Markdown source to a complete HTML document.
+    /// - Parameters:
+    ///   - markdown: Markdown source text.
+    ///   - title:    Value used for the document `<title>`. Defaults to `"Preview"`.
+    /// - Returns: A self-contained HTML string.
+    public static func render(markdown: String, title: String = "Preview") -> String {
+        let document = Document(parsing: markdown)
+        let bodyHTML = HTMLFormatter.format(document)
+        return HTMLTemplate.build(bodyHTML: bodyHTML, title: title)
+    }
+
+    /// Instance variant of ``render(markdown:title:)`` for callers that prefer
+    /// to hold a renderer value.
+    public func render(_ markdown: String, title: String = "Preview") -> String {
+        Self.render(markdown: markdown, title: title)
+    }
+}
