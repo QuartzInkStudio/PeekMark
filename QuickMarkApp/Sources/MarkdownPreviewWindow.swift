@@ -13,17 +13,21 @@ final class MarkdownPreviewWindowController: NSObject {
     private var currentURL: URL?
 
     func show(url: URL) {
-        if window == nil { createWindow() }
+        let isNew = window == nil
+        if isNew { createWindow() }
         load(url: url)
         window?.makeKeyAndOrderFront(nil)
+        if isNew { window?.zoom(nil) }
         NSApp.activate(ignoringOtherApps: true)
     }
 
     func showNewDocument() {
-        if window == nil { createWindow() }
+        let isNew = window == nil
+        if isNew { createWindow() }
         window?.title = "Untitled"
         splitVC?.loadNew()
         window?.makeKeyAndOrderFront(nil)
+        if isNew { window?.zoom(nil) }
         NSApp.activate(ignoringOtherApps: true)
     }
 
@@ -31,20 +35,15 @@ final class MarkdownPreviewWindowController: NSObject {
         let vc = SplitPreviewViewController()
         splitVC = vc
 
-        // Fill the visible screen area with a small margin on each side
-        let screenFrame = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
-        let margin: CGFloat = 30
-        let winFrame = screenFrame.insetBy(dx: margin, dy: margin)
-
         let win = NSWindow(
-            contentRect: winFrame,
+            contentRect: NSRect(x: 0, y: 0, width: 1200, height: 800),
             styleMask: [.titled, .closable, .resizable, .miniaturizable],
             backing: .buffered,
             defer: false
         )
         win.title = "QuickMark"
         win.contentViewController = vc
-        win.setFrameOrigin(NSPoint(x: winFrame.origin.x, y: winFrame.origin.y))
+        win.center()
         win.isReleasedWhenClosed = false
         window = win
 
@@ -97,9 +96,12 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
     }
 
     private var viewMode: ViewMode = .both
+    private weak var toggleButtonRef: NSButton?
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.wantsLayer = true
+        splitView.wantsLayer = true
         splitView.isVertical = true
         splitView.dividerStyle = .thin
         addSplitViewItem(editorItem)
@@ -163,35 +165,33 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
         viewMode.toggle()
         let w = splitView.bounds.width
 
-        NSAnimationContext.runAnimationGroup({ ctx in
-            ctx.duration = 0.28
-            ctx.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            editorItem.isCollapsed = false
-            previewItem.isCollapsed = false
-            switch viewMode {
-            case .both:
-                splitView.animator().setPosition(w * 0.40, ofDividerAt: 0)
-            case .editorOnly:
-                splitView.animator().setPosition(w - 2, ofDividerAt: 0)
-            case .previewOnly:
-                splitView.animator().setPosition(2, ofDividerAt: 0)
-            }
-        }, completionHandler: { [weak self] in
+        editorItem.isCollapsed  = false
+        previewItem.isCollapsed = false
+        splitView.layoutSubtreeIfNeeded()
+
+        NSAnimationContext.beginGrouping()
+        NSAnimationContext.current.duration = 0.3
+        NSAnimationContext.current.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        switch viewMode {
+        case .both:        splitView.animator().setPosition(w * 0.40, ofDividerAt: 0)
+        case .editorOnly:  splitView.animator().setPosition(w - 2,    ofDividerAt: 0)
+        case .previewOnly: splitView.animator().setPosition(2,         ofDividerAt: 0)
+        }
+        NSAnimationContext.endGrouping()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.33) { [weak self] in
             guard let self else { return }
             switch self.viewMode {
-            case .both:        break
-            case .editorOnly:  self.previewItem.isCollapsed = true
-            case .previewOnly: self.editorItem.isCollapsed = true
+            case .both:       break
+            case .editorOnly: self.previewItem.isCollapsed = true
+            case .previewOnly: self.editorItem.isCollapsed  = true
             }
-            DispatchQueue.main.async { [weak self] in
-                guard let self else { return }
-                if let toolbar = self.view.window?.toolbar,
-                   let item = toolbar.items.first(where: { $0.itemIdentifier.rawValue == "toggle" }) {
-                    item.image = NSImage(systemSymbolName: self.viewMode.icon, accessibilityDescription: self.viewMode.label)
-                    item.label = self.viewMode.label
-                }
-            }
-        })
+            let cfg = NSImage.SymbolConfiguration(pointSize: 15, weight: .medium)
+            self.toggleButtonRef?.image = NSImage(
+                systemSymbolName: self.viewMode.icon,
+                accessibilityDescription: self.viewMode.label
+            )?.withSymbolConfiguration(cfg)
+        }
     }
 
     // MARK: NSToolbarDelegate
@@ -227,12 +227,22 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
             return item
         case "toggle":
             let item = NSToolbarItem(itemIdentifier: itemIdentifier)
-            item.label = viewMode.label
-            item.toolTip = "Toggle view mode"
-            item.image = NSImage(systemSymbolName: viewMode.icon,
-                                 accessibilityDescription: viewMode.label)
-            item.target = self
-            item.action = #selector(toggleViewMode(_:))
+            item.label = "View"
+            item.toolTip = "Toggle view (Split / Source / Preview)"
+
+            let cfg = NSImage.SymbolConfiguration(pointSize: 15, weight: .medium)
+            let img = NSImage(systemSymbolName: viewMode.icon, accessibilityDescription: viewMode.label)?
+                          .withSymbolConfiguration(cfg) ?? NSImage()
+
+            let btn = NSButton(image: img, target: self, action: #selector(toggleViewMode(_:)))
+            btn.bezelStyle = .texturedRounded
+            btn.isBordered = false
+            btn.frame = NSRect(x: 0, y: 0, width: 36, height: 28)
+
+            item.view = btn
+            item.minSize = NSSize(width: 36, height: 28)
+            item.maxSize = NSSize(width: 36, height: 28)
+            toggleButtonRef = btn
             return item
         default:
             return nil
