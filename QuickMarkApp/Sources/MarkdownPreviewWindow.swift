@@ -19,6 +19,14 @@ final class MarkdownPreviewWindowController: NSObject {
         NSApp.activate(ignoringOtherApps: true)
     }
 
+    func showNewDocument() {
+        if window == nil { createWindow() }
+        window?.title = "Untitled"
+        splitVC?.loadNew()
+        window?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
     private func createWindow() {
         let vc = SplitPreviewViewController()
         splitVC = vc
@@ -125,44 +133,89 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
         editorVC.currentURL = url
     }
 
+    func loadNew() {
+        editorVC.setText("")
+        editorVC.currentURL = nil
+        previewVC.baseURL = nil
+        previewVC.render(markdown: "")
+        viewMode = .both
+        editorItem.isCollapsed = false
+        previewItem.isCollapsed = false
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            let w = self.splitView.bounds.width
+            if w > 0 { self.splitView.setPosition(w * 0.40, ofDividerAt: 0) }
+        }
+    }
+
+    private var window: NSWindow? { view.window }
+
     @objc func saveCurrentFile(_ sender: Any?) {
         editorVC.saveFile()
     }
 
+    @objc func newDocument(_ sender: Any?) {
+        loadNew()
+        window?.title = "Untitled"
+    }
+
     @objc func toggleViewMode(_ sender: Any?) {
         viewMode.toggle()
-        switch viewMode {
-        case .both:
+        let w = splitView.bounds.width
+
+        NSAnimationContext.runAnimationGroup({ ctx in
+            ctx.duration = 0.28
+            ctx.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             editorItem.isCollapsed = false
             previewItem.isCollapsed = false
-        case .editorOnly:
-            editorItem.isCollapsed = false
-            previewItem.isCollapsed = true
-        case .previewOnly:
-            editorItem.isCollapsed = true
-            previewItem.isCollapsed = false
-        }
-        if let toolbar = view.window?.toolbar,
-           let item = toolbar.items.first(where: { $0.itemIdentifier.rawValue == "toggle" }) {
-            item.image = NSImage(systemSymbolName: viewMode.icon, accessibilityDescription: viewMode.label)
-            item.label = viewMode.label
-        }
+            switch viewMode {
+            case .both:
+                splitView.animator().setPosition(w * 0.40, ofDividerAt: 0)
+            case .editorOnly:
+                splitView.animator().setPosition(w - 2, ofDividerAt: 0)
+            case .previewOnly:
+                splitView.animator().setPosition(2, ofDividerAt: 0)
+            }
+        }, completionHandler: { [weak self] in
+            guard let self else { return }
+            switch self.viewMode {
+            case .both:        break
+            case .editorOnly:  self.previewItem.isCollapsed = true
+            case .previewOnly: self.editorItem.isCollapsed = true
+            }
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                if let toolbar = self.view.window?.toolbar,
+                   let item = toolbar.items.first(where: { $0.itemIdentifier.rawValue == "toggle" }) {
+                    item.image = NSImage(systemSymbolName: self.viewMode.icon, accessibilityDescription: self.viewMode.label)
+                    item.label = self.viewMode.label
+                }
+            }
+        })
     }
 
     // MARK: NSToolbarDelegate
 
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [NSToolbarItem.Identifier("save"), .flexibleSpace, NSToolbarItem.Identifier("toggle")]
+        [NSToolbarItem.Identifier("new"), NSToolbarItem.Identifier("save"), .flexibleSpace, NSToolbarItem.Identifier("toggle")]
     }
 
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [NSToolbarItem.Identifier("save"), NSToolbarItem.Identifier("toggle"), .flexibleSpace, .space]
+        [NSToolbarItem.Identifier("new"), NSToolbarItem.Identifier("save"), NSToolbarItem.Identifier("toggle"), .flexibleSpace, .space]
     }
 
     func toolbar(_ toolbar: NSToolbar,
                  itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier,
                  willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
         switch itemIdentifier.rawValue {
+        case "new":
+            let item = NSToolbarItem(itemIdentifier: itemIdentifier)
+            item.label = "New"
+            item.toolTip = "New document (⌘N)"
+            item.image = NSImage(systemSymbolName: "doc.badge.plus", accessibilityDescription: "New")
+            item.target = self
+            item.action = #selector(newDocument(_:))
+            return item
         case "save":
             let item = NSToolbarItem(itemIdentifier: itemIdentifier)
             item.label = "Save"

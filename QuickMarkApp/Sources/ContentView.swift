@@ -16,6 +16,9 @@ struct ContentView: View {
                 .multilineTextAlignment(.center)
             Divider()
             HStack(spacing: 16) {
+                Button("New") {
+                    newDocument()
+                }
                 Button("Open Markdown…") {
                     openFilePicker()
                 }
@@ -26,6 +29,12 @@ struct ContentView: View {
         }
         .padding(40)
         .frame(minWidth: 400, minHeight: 280)
+    }
+
+    private func newDocument() {
+        let welcomeWindow = NSApp.keyWindow
+        MarkdownPreviewWindowController.shared.showNewDocument()
+        welcomeWindow?.close()
     }
 
     private func openFilePicker() {

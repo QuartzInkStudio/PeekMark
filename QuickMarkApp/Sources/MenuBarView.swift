@@ -6,6 +6,13 @@ struct MenuBarView: View {
     let updater: UpdaterController
 
     var body: some View {
+        Button("New Document") {
+            MarkdownPreviewWindowController.shared.showNewDocument()
+        }
+        .keyboardShortcut("n")
+
+        Divider()
+
         Button("Open Markdown…") {
             openFilePicker()
         }
