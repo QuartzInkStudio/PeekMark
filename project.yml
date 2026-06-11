@@ -41,6 +41,9 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     entitlements:
       path: QuickMarkApp/QuickMarkApp.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.app.quickmark.QuickMark
 
   QuickMarkQL:
     type: app-extension
@@ -60,3 +63,6 @@ targets:
         CODE_SIGN_ENTITLEMENTS: QuickMarkQL/QuickMarkQL.entitlements
     entitlements:
       path: QuickMarkQL/QuickMarkQL.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.app.quickmark.QuickMark

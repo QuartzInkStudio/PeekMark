@@ -12,8 +12,33 @@ struct ContentView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+            Divider()
+            HStack(spacing: 16) {
+                Button("Open Markdown…") {
+                    openMarkdownFile()
+                }
+                Button("Settings…") {
+                    NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+                }
+            }
         }
         .padding(40)
-        .frame(minWidth: 400, minHeight: 260)
+        .frame(minWidth: 400, minHeight: 280)
+    }
+
+    private func openMarkdownFile() {
+        let panel = NSOpenPanel()
+        panel.title = "Open Markdown File"
+        panel.allowedContentTypes = [
+            .init(filenameExtension: "md")!,
+            .init(filenameExtension: "markdown")!
+        ]
+        panel.allowsMultipleSelection = false
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            MarkdownPreviewWindowController.shared.show(url: url)
+        }
     }
 }

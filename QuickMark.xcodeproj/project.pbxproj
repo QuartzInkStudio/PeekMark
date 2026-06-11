@@ -10,6 +10,9 @@
 		12CBB9E93CFCE4DC14FC1173 /* QuickMarkCore in Frameworks */ = {isa = PBXBuildFile; productRef = 021DD69351E7FEA14C9F3874 /* QuickMarkCore */; };
 		14F2956604B70B4CEC88C8A5 /* QuickMarkQLExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC10EC4B656451105042CF1 /* QuickMarkQLExtension.swift */; };
 		3B4F36159F09EA35AD79201A /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D44DD483E76310E64C5935CF /* PreviewViewController.swift */; };
+		4C2CEA41A9BABD51F59A76E1 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 530CEC13D6F458867065964D /* MenuBarView.swift */; };
+		5C8531AF4CB54AAC001AD52F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8452FAE2B8DF4705E6D74E82 /* SettingsView.swift */; };
+		5CAE5578EE64041BADDA31CD /* MarkdownPreviewWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3025161630856AC278FB7FD /* MarkdownPreviewWindow.swift */; };
 		7A8332709B185220CE22E06F /* QuickMarkCore in Frameworks */ = {isa = PBXBuildFile; productRef = E820D5389953F2A64658CAD8 /* QuickMarkCore */; };
 		90760405E7DE0F86167CB1D0 /* QuickMarkQL.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F05A8C69036C5546C2A6C924 /* QuickMarkQL.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		ADEC1D7902C1B86A891725B7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 285F1CCC0105220D493E2719 /* ContentView.swift */; };
@@ -43,7 +46,10 @@
 /* Begin PBXFileReference section */
 		039DE6F516B91ED5DDFEEAA7 /* QuickMark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuickMark.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		285F1CCC0105220D493E2719 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		530CEC13D6F458867065964D /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		8452FAE2B8DF4705E6D74E82 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		8518505E9865A38A2B0C8AF3 /* QuickMarkCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = QuickMarkCore; path = QuickMarkCore; sourceTree = SOURCE_ROOT; };
+		B3025161630856AC278FB7FD /* MarkdownPreviewWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownPreviewWindow.swift; sourceTree = "<group>"; };
 		D44DD483E76310E64C5935CF /* PreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViewController.swift; sourceTree = "<group>"; };
 		F05A8C69036C5546C2A6C924 /* QuickMarkQL.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = QuickMarkQL.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAC10EC4B656451105042CF1 /* QuickMarkQLExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickMarkQLExtension.swift; sourceTree = "<group>"; };
@@ -99,7 +105,10 @@
 			isa = PBXGroup;
 			children = (
 				285F1CCC0105220D493E2719 /* ContentView.swift */,
+				B3025161630856AC278FB7FD /* MarkdownPreviewWindow.swift */,
+				530CEC13D6F458867065964D /* MenuBarView.swift */,
 				FCB9F2494856EB2E8C495231 /* QuickMarkApp.swift */,
+				8452FAE2B8DF4705E6D74E82 /* SettingsView.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -222,7 +231,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				ADEC1D7902C1B86A891725B7 /* ContentView.swift in Sources */,
+				5CAE5578EE64041BADDA31CD /* MarkdownPreviewWindow.swift in Sources */,
+				4C2CEA41A9BABD51F59A76E1 /* MenuBarView.swift in Sources */,
 				C921A55611646168F6BBA90E /* QuickMarkApp.swift in Sources */,
+				5C8531AF4CB54AAC001AD52F /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
