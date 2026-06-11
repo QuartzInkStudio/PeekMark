@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build (unsigned)
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.app
+
+      - name: Build QuickMarkCore (SPM)
+        run: |
+          cd QuickMarkCore
+          swift build
+
+      - name: Build QuickMark (xcodebuild)
+        run: |
+          xcodebuild \
+            -project QuickMark.xcodeproj \
+            -scheme QuickMark \
+            -configuration Debug \
+            -destination "platform=macOS" \
+            build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO

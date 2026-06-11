@@ -3,6 +3,8 @@ import AppKit
 import QuickMarkCore
 
 struct MenuBarView: View {
+    let updater: UpdaterController
+
     var body: some View {
         Button("Open Markdown…") {
             openFilePicker()
@@ -21,6 +23,11 @@ struct MenuBarView: View {
             NSApp.orderFrontStandardAboutPanel(nil)
             NSApp.activate(ignoringOtherApps: true)
         }
+
+        Button("Check for Updates…") {
+            updater.checkForUpdates()
+        }
+        .disabled(!updater.canCheckForUpdates)
 
         Divider()
 

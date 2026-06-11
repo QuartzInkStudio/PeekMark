@@ -2,6 +2,8 @@ import SwiftUI
 
 @main
 struct QuickMarkApp: App {
+    @StateObject private var updater = UpdaterController()
+
     var body: some Scene {
         // Main window (shown on first launch or from menu bar "Open QuickMark")
         WindowGroup {
@@ -13,7 +15,7 @@ struct QuickMarkApp: App {
 
         // Menu bar extra
         MenuBarExtra("QuickMark", systemImage: "doc.text.magnifyingglass") {
-            MenuBarView()
+            MenuBarView(updater: updater)
         }
         .menuBarExtraStyle(.menu)
 
