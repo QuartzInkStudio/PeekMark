@@ -63,6 +63,33 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
     private var editorVC: EditorViewController { editorItem.viewController as! EditorViewController }
     private var previewVC: PreviewWebViewController { previewItem.viewController as! PreviewWebViewController }
 
+    private enum ViewMode {
+        case both, editorOnly, previewOnly
+        mutating func toggle() {
+            switch self {
+            case .both:        self = .editorOnly
+            case .editorOnly:  self = .previewOnly
+            case .previewOnly: self = .both
+            }
+        }
+        var label: String {
+            switch self {
+            case .both:        return "Split"
+            case .editorOnly:  return "Source"
+            case .previewOnly: return "Preview"
+            }
+        }
+        var icon: String {
+            switch self {
+            case .both:        return "rectangle.split.2x1"
+            case .editorOnly:  return "doc.text"
+            case .previewOnly: return "eye"
+            }
+        }
+    }
+
+    private var viewMode: ViewMode = .both
+
     override func viewDidLoad() {
         super.viewDidLoad()
         splitView.isVertical = true
@@ -70,9 +97,16 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
         addSplitViewItem(editorItem)
         addSplitViewItem(previewItem)
 
-        // Wire editor → preview live update
         editorVC.onTextChange = { [weak self] markdown in
             self?.previewVC.render(markdown: markdown)
+        }
+
+        NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "s" {
+                self?.saveCurrentFile(nil)
+                return nil
+            }
+            return event
         }
     }
 
@@ -83,29 +117,61 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
         editorVC.currentURL = url
     }
 
+    @objc func saveCurrentFile(_ sender: Any?) {
+        editorVC.saveFile()
+    }
+
+    @objc func toggleViewMode(_ sender: Any?) {
+        viewMode.toggle()
+        switch viewMode {
+        case .both:
+            editorItem.isCollapsed = false
+            previewItem.isCollapsed = false
+        case .editorOnly:
+            editorItem.isCollapsed = false
+            previewItem.isCollapsed = true
+        case .previewOnly:
+            editorItem.isCollapsed = true
+            previewItem.isCollapsed = false
+        }
+        if let toolbar = view.window?.toolbar,
+           let item = toolbar.items.first(where: { $0.itemIdentifier.rawValue == "toggle" }) {
+            item.image = NSImage(systemSymbolName: viewMode.icon, accessibilityDescription: viewMode.label)
+            item.label = viewMode.label
+        }
+    }
+
     // MARK: NSToolbarDelegate
 
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [NSToolbarItem.Identifier("save"), .flexibleSpace, NSToolbarItem.Identifier("info")]
+        [NSToolbarItem.Identifier("save"), .flexibleSpace, NSToolbarItem.Identifier("toggle")]
     }
 
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [NSToolbarItem.Identifier("save"), NSToolbarItem.Identifier("info"), .flexibleSpace, .space]
+        [NSToolbarItem.Identifier("save"), NSToolbarItem.Identifier("toggle"), .flexibleSpace, .space]
     }
 
-    func toolbar(_ toolbar: NSToolbar, itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier, willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
+    func toolbar(_ toolbar: NSToolbar,
+                 itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier,
+                 willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
         switch itemIdentifier.rawValue {
         case "save":
             let item = NSToolbarItem(itemIdentifier: itemIdentifier)
             item.label = "Save"
-            item.image = NSImage(systemSymbolName: "square.and.arrow.down", accessibilityDescription: "Save")
-            item.target = editorVC
-            item.action = #selector(EditorViewController.saveFile)
+            item.toolTip = "Save file (⌘S)"
+            item.image = NSImage(systemSymbolName: "square.and.arrow.down",
+                                 accessibilityDescription: "Save")
+            item.target = self
+            item.action = #selector(saveCurrentFile(_:))
             return item
-        case "info":
+        case "toggle":
             let item = NSToolbarItem(itemIdentifier: itemIdentifier)
-            item.label = "Editor | Preview"
-            item.image = NSImage(systemSymbolName: "rectangle.split.2x1", accessibilityDescription: "Split view")
+            item.label = viewMode.label
+            item.toolTip = "Toggle view mode"
+            item.image = NSImage(systemSymbolName: viewMode.icon,
+                                 accessibilityDescription: viewMode.label)
+            item.target = self
+            item.action = #selector(toggleViewMode(_:))
             return item
         default:
             return nil
@@ -158,6 +224,13 @@ final class EditorViewController: NSViewController {
         }
         do {
             try textView.string.write(to: url, atomically: true, encoding: .utf8)
+            if let win = view.window {
+                let original = win.title
+                win.title = "✓ Saved"
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                    win.title = original
+                }
+            }
         } catch {
             let alert = NSAlert(error: error)
             alert.runModal()
