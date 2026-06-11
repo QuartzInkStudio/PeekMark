@@ -23,8 +23,13 @@ final class MarkdownPreviewWindowController: NSObject {
         let vc = SplitPreviewViewController()
         splitVC = vc
 
+        // Adapt to screen size: 80% of visible area, minimum 1000×700
+        let screen = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
+        let width  = max(1000, screen.width  * 0.82)
+        let height = max(700,  screen.height * 0.85)
+
         let win = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 1000, height: 700),
+            contentRect: NSRect(x: 0, y: 0, width: width, height: height),
             styleMask: [.titled, .closable, .resizable, .miniaturizable],
             backing: .buffered,
             defer: false
@@ -35,7 +40,6 @@ final class MarkdownPreviewWindowController: NSObject {
         win.isReleasedWhenClosed = false
         window = win
 
-        // Add toolbar with Save button
         let toolbar = NSToolbar(identifier: "QuickMarkToolbar")
         toolbar.delegate = vc
         toolbar.displayMode = .iconAndLabel

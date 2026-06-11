@@ -18,4 +18,6 @@ By submitting a pull request or otherwise contributing to QuickMark, you agree:
 
 > **Why a CLA?** QuickMark uses a dual-license model: AGPL-3.0 for the community
 > edition and a proprietary license for the Pro edition. The CLA ensures the
-> maintainer can legally include community contributions in both editions.
+> maintainer can legally include community contributions in both editions. 
+
+
