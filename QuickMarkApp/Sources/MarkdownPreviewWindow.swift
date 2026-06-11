@@ -2,12 +2,15 @@ import AppKit
 import WebKit
 import QuickMarkCore
 
-/// A floating window that renders a Markdown file using QuickMarkCore + WKWebView.
-final class MarkdownPreviewWindowController: NSObject, WKNavigationDelegate {
+/// A floating split-view window:
+///   Left  → editable NSTextView with raw Markdown source
+///   Right → WKWebView live preview (updates on every keystroke)
+final class MarkdownPreviewWindowController: NSObject {
     static let shared = MarkdownPreviewWindowController()
 
     private var window: NSWindow?
-    private var webView: WKWebView?
+    private var splitVC: SplitPreviewViewController?
+    private var currentURL: URL?
 
     func show(url: URL) {
         if window == nil { createWindow() }
@@ -17,34 +20,184 @@ final class MarkdownPreviewWindowController: NSObject, WKNavigationDelegate {
     }
 
     private func createWindow() {
-        let config = WKWebViewConfiguration()
-        let wv = WKWebView(frame: NSRect(x: 0, y: 0, width: 800, height: 600), configuration: config)
-        wv.navigationDelegate = self
-        webView = wv
+        let vc = SplitPreviewViewController()
+        splitVC = vc
 
         let win = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 800, height: 600),
+            contentRect: NSRect(x: 0, y: 0, width: 1000, height: 700),
             styleMask: [.titled, .closable, .resizable, .miniaturizable],
             backing: .buffered,
             defer: false
         )
-        win.title = "QuickMark Preview"
-        win.contentView = wv
+        win.title = "QuickMark"
+        win.contentViewController = vc
         win.center()
         win.isReleasedWhenClosed = false
         window = win
+
+        // Add toolbar with Save button
+        let toolbar = NSToolbar(identifier: "QuickMarkToolbar")
+        toolbar.delegate = vc
+        toolbar.displayMode = .iconAndLabel
+        win.toolbar = toolbar
     }
 
     private func load(url: URL) {
-        guard let webView else { return }
-        let markdown = (try? String(contentsOf: url, encoding: .utf8)) ?? "_Could not read file._"
-        let title = url.deletingPathExtension().lastPathComponent
-        let html = MarkdownRenderer.render(markdown: markdown, title: title)
-        window?.title = title
-        webView.loadHTMLString(html, baseURL: url.deletingLastPathComponent())
+        currentURL = url
+        let markdown = (try? String(contentsOf: url, encoding: .utf8)) ?? ""
+        window?.title = url.deletingPathExtension().lastPathComponent
+        splitVC?.load(markdown: markdown, url: url)
+    }
+}
+
+// MARK: - Split View Controller
+
+final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate {
+    private let editorItem = NSSplitViewItem(viewController: EditorViewController())
+    private let previewItem = NSSplitViewItem(viewController: PreviewWebViewController())
+
+    private var editorVC: EditorViewController { editorItem.viewController as! EditorViewController }
+    private var previewVC: PreviewWebViewController { previewItem.viewController as! PreviewWebViewController }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        splitView.isVertical = true
+        splitView.dividerStyle = .thin
+        addSplitViewItem(editorItem)
+        addSplitViewItem(previewItem)
+
+        // Wire editor → preview live update
+        editorVC.onTextChange = { [weak self] markdown in
+            self?.previewVC.render(markdown: markdown)
+        }
     }
 
-    // WKNavigationDelegate: block remote navigation, open links externally
+    func load(markdown: String, url: URL) {
+        editorVC.setText(markdown)
+        previewVC.baseURL = url.deletingLastPathComponent()
+        previewVC.render(markdown: markdown, baseURL: url.deletingLastPathComponent())
+        editorVC.currentURL = url
+    }
+
+    // MARK: NSToolbarDelegate
+
+    func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
+        [NSToolbarItem.Identifier("save"), .flexibleSpace, NSToolbarItem.Identifier("info")]
+    }
+
+    func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
+        [NSToolbarItem.Identifier("save"), NSToolbarItem.Identifier("info"), .flexibleSpace, .space]
+    }
+
+    func toolbar(_ toolbar: NSToolbar, itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier, willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
+        switch itemIdentifier.rawValue {
+        case "save":
+            let item = NSToolbarItem(itemIdentifier: itemIdentifier)
+            item.label = "Save"
+            item.image = NSImage(systemSymbolName: "square.and.arrow.down", accessibilityDescription: "Save")
+            item.target = editorVC
+            item.action = #selector(EditorViewController.saveFile)
+            return item
+        case "info":
+            let item = NSToolbarItem(itemIdentifier: itemIdentifier)
+            item.label = "Editor | Preview"
+            item.image = NSImage(systemSymbolName: "rectangle.split.2x1", accessibilityDescription: "Split view")
+            return item
+        default:
+            return nil
+        }
+    }
+}
+
+// MARK: - Editor (left pane)
+
+final class EditorViewController: NSViewController {
+    var onTextChange: ((String) -> Void)?
+    var currentURL: URL?
+
+    private var scrollView: NSScrollView!
+    private var textView: NSTextView!
+
+    override func loadView() {
+        scrollView = NSScrollView()
+        scrollView.hasVerticalScroller = true
+        scrollView.hasHorizontalScroller = false
+        scrollView.autohidesScrollers = true
+
+        textView = NSTextView()
+        textView.isEditable = true
+        textView.isRichText = false
+        textView.font = NSFont.monospacedSystemFont(ofSize: 14, weight: .regular)
+        textView.isAutomaticSpellingCorrectionEnabled = false
+        textView.isAutomaticQuoteSubstitutionEnabled = false
+        textView.isAutomaticDashSubstitutionEnabled = false
+        textView.textContainerInset = NSSize(width: 12, height: 12)
+        textView.delegate = self
+        textView.allowsUndo = true
+
+        // Set colors for both light and dark mode
+        textView.drawsBackground = true
+
+        scrollView.documentView = textView
+        view = scrollView
+        view.frame = NSRect(x: 0, y: 0, width: 480, height: 700)
+    }
+
+    func setText(_ markdown: String) {
+        textView.string = markdown
+    }
+
+    @objc func saveFile() {
+        guard let url = currentURL else {
+            saveAs()
+            return
+        }
+        do {
+            try textView.string.write(to: url, atomically: true, encoding: .utf8)
+        } catch {
+            let alert = NSAlert(error: error)
+            alert.runModal()
+        }
+    }
+
+    private func saveAs() {
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.init(filenameExtension: "md")!]
+        panel.nameFieldStringValue = "Untitled.md"
+        panel.begin { [weak self] response in
+            guard response == .OK, let url = panel.url, let self else { return }
+            self.currentURL = url
+            try? self.textView.string.write(to: url, atomically: true, encoding: .utf8)
+        }
+    }
+}
+
+extension EditorViewController: NSTextViewDelegate {
+    func textDidChange(_ notification: Notification) {
+        onTextChange?(textView.string)
+    }
+}
+
+// MARK: - Preview (right pane)
+
+final class PreviewWebViewController: NSViewController, WKNavigationDelegate {
+    var baseURL: URL?
+    private var webView: WKWebView!
+
+    override func loadView() {
+        let config = WKWebViewConfiguration()
+        webView = WKWebView(frame: .zero, configuration: config)
+        webView.navigationDelegate = self
+        view = webView
+        view.frame = NSRect(x: 0, y: 0, width: 520, height: 700)
+    }
+
+    func render(markdown: String, baseURL: URL? = nil) {
+        let resolvedBase = baseURL ?? self.baseURL
+        let html = MarkdownRenderer.render(markdown: markdown, title: "Preview")
+        webView.loadHTMLString(html, baseURL: resolvedBase)
+    }
+
     func webView(_ webView: WKWebView,
                  decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {

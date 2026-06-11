@@ -50,7 +50,7 @@
 		285F1CCC0105220D493E2719 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		530CEC13D6F458867065964D /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		8452FAE2B8DF4705E6D74E82 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		8518505E9865A38A2B0C8AF3 /* QuickMarkCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = QuickMarkCore; path = QuickMarkCore; sourceTree = SOURCE_ROOT; };
+		8518505E9865A38A2B0C8AF3 /* QuickMarkCore */ = {isa = PBXFileReference; lastKnownFileType = folder; path = QuickMarkCore; sourceTree = SOURCE_ROOT; };
 		A017490E25B7E8C014945D8D /* UpdaterSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdaterSetup.swift; sourceTree = "<group>"; };
 		B3025161630856AC278FB7FD /* MarkdownPreviewWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownPreviewWindow.swift; sourceTree = "<group>"; };
 		D44DD483E76310E64C5935CF /* PreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViewController.swift; sourceTree = "<group>"; };
@@ -197,16 +197,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
-				TargetAttributes = {
-					B85FFBA54E4768FA892422DD = {
-						DevelopmentTeam = "";
-						ProvisioningStyle = Automatic;
-					};
-					CE802359699499CDDDBE1FA2 = {
-						DevelopmentTeam = "";
-						ProvisioningStyle = Automatic;
-					};
-				};
 			};
 			buildConfigurationList = E46A5D58C279DB0AFBAAD9B6 /* Build configuration list for PBXProject "QuickMark" */;
 			developmentRegion = en;
@@ -395,7 +385,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = QuickMarkQL/QuickMarkQL.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = M924X3MR87;
 				INFOPLIST_FILE = QuickMarkQL/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -405,6 +398,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.quickmark.QuickMark.QuickMarkQL;
 				PRODUCT_NAME = QuickMarkQL;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -414,7 +408,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = QuickMarkApp/QuickMarkApp.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = M924X3MR87;
 				INFOPLIST_FILE = QuickMarkApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -423,6 +420,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.quickmark.QuickMark;
 				PRODUCT_NAME = QuickMark;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -431,7 +429,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = QuickMarkQL/QuickMarkQL.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = M924X3MR87;
 				INFOPLIST_FILE = QuickMarkQL/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -441,6 +442,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.quickmark.QuickMark.QuickMarkQL;
 				PRODUCT_NAME = QuickMarkQL;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -450,7 +452,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = QuickMarkApp/QuickMarkApp.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = M924X3MR87;
 				INFOPLIST_FILE = QuickMarkApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -459,6 +464,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.quickmark.QuickMark;
 				PRODUCT_NAME = QuickMark;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 			};
 			name = Release;

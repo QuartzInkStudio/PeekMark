@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @Environment(\.openSettings) private var openSettings
+
     var body: some View {
         VStack(spacing: 20) {
             Image(systemName: "doc.text.magnifyingglass")
@@ -15,10 +17,10 @@ struct ContentView: View {
             Divider()
             HStack(spacing: 16) {
                 Button("Open Markdown…") {
-                    openMarkdownFile()
+                    openFilePicker()
                 }
                 Button("Settings…") {
-                    NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+                    openSettings()
                 }
             }
         }
@@ -26,12 +28,14 @@ struct ContentView: View {
         .frame(minWidth: 400, minHeight: 280)
     }
 
-    private func openMarkdownFile() {
+    private func openFilePicker() {
         let panel = NSOpenPanel()
         panel.title = "Open Markdown File"
         panel.allowedContentTypes = [
             .init(filenameExtension: "md")!,
-            .init(filenameExtension: "markdown")!
+            .init(filenameExtension: "markdown")!,
+            .init(filenameExtension: "mdown")!,
+            .init(filenameExtension: "mkd")!
         ]
         panel.allowsMultipleSelection = false
         panel.canChooseFiles = true
