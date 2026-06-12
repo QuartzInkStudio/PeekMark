@@ -20,18 +20,32 @@ build/
 Thumbs.db
 
 # Signing & Secrets — NEVER commit these
+*.p8
 *.p12
 *.pem
+*.key
+*.cer
+*.crt
 *.mobileprovision
 *.provisionprofile
 *.certSigningRequest
+*.developerprofile
 Secrets.swift
 Config.xcconfig
+*.private.xcconfig
+.env
+.env.*
 secrets.json
+notarytool-profile.json
+appstoreconnect.json
+AuthKey_*.p8
 
 # Sparkle private key
 sparkle_private_key
-*.pem
+sparkle_private_key.*
+ed25519_private_key*
+private_key
+private_key.*
 
 # Fastlane
 fastlane/report.xml

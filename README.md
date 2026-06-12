@@ -23,6 +23,7 @@ No subscription. No Electron. Native Swift, < 5 MB.
 - ✅ Auto light / dark mode
 - ✅ System font (SF Pro + SF Mono)
 - ✅ Zero remote requests — works offline
+- ✅ Menu bar scratchpad and global hotkey
 
 ## Features (Pro)
 
@@ -30,7 +31,9 @@ No subscription. No Electron. Native Swift, < 5 MB.
 - Mermaid diagram rendering
 - LaTeX / KaTeX math
 - PDF / DOCX export
-- Menu bar scratchpad
+
+Pro code is not included in this repository. Official signed binaries may include
+closed-source Pro modules loaded behind compile-time flags and license checks.
 
 ## Build from Source
 
@@ -43,6 +46,41 @@ open QuickMark.xcodeproj
 ```
 
 Build the `QuickMark` scheme. The Quick Look extension is included.
+
+## Verify Quick Look Locally
+
+Quick Look extensions must be embedded in a signed app bundle before Finder can
+load them reliably. After building or exporting QuickMark, run:
+
+```bash
+scripts/verify-quicklook.sh /path/to/QuickMark.app /path/to/sample.md
+```
+
+The script verifies code signatures, registers the app with Launch Services,
+resets Quick Look cache, and opens a sample preview with `qlmanage -p`.
+
+## Open Source Safety
+
+Safe to commit:
+
+- Source code under `QuickMarkApp`, `QuickMarkCore`, and `QuickMarkQL`
+- `project.yml`, `QuickMark.xcodeproj`, `scripts/*.sh`, CI workflows, docs
+- Public identifiers such as bundle IDs and public Sparkle update URLs
+- Sparkle **public** EdDSA key (`SUPublicEDKey`) when configured
+
+Never commit:
+
+- App Store Connect API keys (`AuthKey_*.p8`), Key ID/Issuer ID secret config files
+- Apple ID, app-specific passwords, notarytool keychain profile exports
+- Developer ID certificates, `.p12`, `.cer`, provisioning profiles, private xcconfig files
+- Sparkle EdDSA private key or any generated release DMG/archive artifacts
+
+Keep release credentials in your local shell/keychain or GitHub Actions secrets.
+
+## Pro Architecture
+
+Pro implementation lives outside this public repository in a private Swift
+Package. See [docs/PRO-ARCHITECTURE.md](docs/PRO-ARCHITECTURE.md).
 
 ## License
 
