@@ -22,11 +22,11 @@ jobs:
           cd QuickMarkCore
           swift build
 
-      - name: Build QuickMark (xcodebuild)
+      - name: Build PeekMark (xcodebuild)
         run: |
           xcodebuild \
-            -project QuickMark.xcodeproj \
-            -scheme QuickMark \
+            -project PeekMark.xcodeproj \
+            -scheme PeekMark \
             -configuration Debug \
             -destination "platform=macOS" \
             build \

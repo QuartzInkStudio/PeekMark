@@ -1,6 +1,6 @@
-name: QuickMark
+name: PeekMark
 options:
-  bundleIdPrefix: app.quickmark
+  bundleIdPrefix: app.peekmark
   deploymentTarget:
     macOS: "14.0"
   xcodeVersion: "16"
@@ -23,7 +23,7 @@ settings:
     DEVELOPMENT_TEAM: ""
 
 targets:
-  QuickMark:
+  PeekMark:
     type: application
     platform: macOS
     deploymentTarget: "14.0"
@@ -35,12 +35,12 @@ targets:
         product: QuickMarkCore
       - package: Sparkle
         product: Sparkle
-      - target: QuickMarkQL
+      - target: PeekMarkQL
         embed: true
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: app.quickmark.QuickMark
-        PRODUCT_NAME: QuickMark
+        PRODUCT_BUNDLE_IDENTIFIER: app.peekmark.PeekMark
+        PRODUCT_NAME: PeekMark
         INFOPLIST_FILE: QuickMarkApp/Info.plist
         CODE_SIGN_ENTITLEMENTS: QuickMarkApp/QuickMarkApp.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
@@ -48,9 +48,9 @@ targets:
       path: QuickMarkApp/QuickMarkApp.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.app.quickmark.QuickMark
+          - group.app.peekmark.PeekMark
 
-  QuickMarkQL:
+  PeekMarkQL:
     type: app-extension
     platform: macOS
     deploymentTarget: "14.0"
@@ -62,12 +62,12 @@ targets:
         product: QuickMarkCore
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: app.quickmark.QuickMark.QuickMarkQL
-        PRODUCT_NAME: QuickMarkQL
+        PRODUCT_BUNDLE_IDENTIFIER: app.peekmark.PeekMark.PeekMarkQL
+        PRODUCT_NAME: PeekMarkQL
         INFOPLIST_FILE: QuickMarkQL/Info.plist
         CODE_SIGN_ENTITLEMENTS: QuickMarkQL/QuickMarkQL.entitlements
     entitlements:
       path: QuickMarkQL/QuickMarkQL.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.app.quickmark.QuickMark
+          - group.app.peekmark.PeekMark
