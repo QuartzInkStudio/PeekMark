@@ -8,32 +8,77 @@ import QuickMarkCore
 final class MarkdownPreviewWindowController: NSObject {
     static let shared = MarkdownPreviewWindowController()
 
-    private var window: NSWindow?
-    private var splitVC: SplitPreviewViewController?
-    private var currentURL: URL?
+    private var windows: [NSWindow] = []
+    private weak var scratchpadWindow: NSWindow?
 
     func show(url: URL) {
-        let isNew = window == nil
-        if isNew { createWindow() }
-        load(url: url)
-        window?.makeKeyAndOrderFront(nil)
-        if isNew { window?.zoom(nil) }
+        let resolvedURL = RecentMarkdownStore.shared.resolvedURL(for: url)
+        let didStartAccessing = resolvedURL.startAccessingSecurityScopedResource()
+        defer {
+            if didStartAccessing {
+                resolvedURL.stopAccessingSecurityScopedResource()
+            }
+        }
+
+        let markdown: String
+        do {
+            markdown = try String(contentsOf: resolvedURL, encoding: .utf8)
+        } catch {
+            RecentMarkdownStore.shared.remove(url)
+            showOpenError(error, for: resolvedURL)
+            return
+        }
+
+        let (window, splitVC) = createWindow()
+        load(markdown: markdown, url: resolvedURL, in: window, splitVC: splitVC)
+        window.makeKeyAndOrderFront(nil)
+        positionWindowForFirstOpen(window)
         NSApp.activate(ignoringOtherApps: true)
     }
 
     func showNewDocument() {
-        let isNew = window == nil
-        if isNew { createWindow() }
-        window?.title = "Untitled"
-        splitVC?.loadNew()
-        window?.makeKeyAndOrderFront(nil)
-        if isNew { window?.zoom(nil) }
+        let (window, splitVC) = createWindow()
+        flashNewDocumentTitle(window)
+        splitVC.loadNew()
+        window.makeKeyAndOrderFront(nil)
+        positionWindowForFirstOpen(window)
         NSApp.activate(ignoringOtherApps: true)
     }
 
-    private func createWindow() {
+    func showScratchpad() {
+        if let scratchpadWindow, scratchpadWindow.isVisible {
+            scratchpadWindow.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            return
+        }
+
+        let (window, splitVC) = createWindow()
+        let url = scratchpadURL()
+        let markdown = (try? String(contentsOf: url, encoding: .utf8)) ?? ""
+        window.title = "Scratchpad"
+        splitVC.load(markdown: markdown, url: url)
+        scratchpadWindow = window
+        window.makeKeyAndOrderFront(nil)
+        positionWindowForFirstOpen(window)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    func openMarkdownDocument(closing welcomeWindow: NSWindow? = nil) {
+        let panel = NSOpenPanel()
+        panel.title = "Open Markdown File"
+        panel.allowedContentTypes = QuickMarkMarkdownFiles.extensions.compactMap { .init(filenameExtension: $0) }
+        panel.allowsMultipleSelection = false
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.begin { [weak self] response in
+            guard response == .OK, let url = panel.url else { return }
+            self?.show(url: url)
+            welcomeWindow?.close()
+        }
+    }
+
+    private func createWindow() -> (NSWindow, SplitPreviewViewController) {
         let vc = SplitPreviewViewController()
-        splitVC = vc
 
         let win = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 1200, height: 800),
@@ -45,19 +90,65 @@ final class MarkdownPreviewWindowController: NSObject {
         win.contentViewController = vc
         win.center()
         win.isReleasedWhenClosed = false
-        window = win
+        win.delegate = self
 
         let toolbar = NSToolbar(identifier: "QuickMarkToolbar")
         toolbar.delegate = vc
         toolbar.displayMode = .iconAndLabel
         win.toolbar = toolbar
+
+        windows.append(win)
+        return (win, vc)
     }
 
-    private func load(url: URL) {
-        currentURL = url
-        let markdown = (try? String(contentsOf: url, encoding: .utf8)) ?? ""
-        window?.title = url.deletingPathExtension().lastPathComponent
-        splitVC?.load(markdown: markdown, url: url)
+    private func positionWindowForFirstOpen(_ window: NSWindow) {
+        let visibleFrame = window.screen?.visibleFrame ?? NSScreen.main?.visibleFrame
+        guard let visibleFrame else {
+            window.center()
+            return
+        }
+
+        let width = min(1280, visibleFrame.width * 0.82)
+        let height = min(860, visibleFrame.height * 0.84)
+        let x = visibleFrame.midX - width / 2
+        let y = visibleFrame.midY - height / 2
+
+        window.setFrame(NSRect(x: x, y: y, width: width, height: height), display: true)
+    }
+
+    private func flashNewDocumentTitle(_ window: NSWindow) {
+        window.title = "New Document"
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
+            guard self?.windows.contains(where: { $0 === window }) == true else { return }
+            window.title = "Untitled"
+        }
+    }
+
+    private func load(markdown: String, url: URL, in window: NSWindow, splitVC: SplitPreviewViewController) {
+        window.title = url.deletingPathExtension().lastPathComponent
+        splitVC.load(markdown: markdown, url: url)
+        RecentMarkdownStore.shared.add(url)
+    }
+
+    private func showOpenError(_ error: Error, for url: URL) {
+        let alert = NSAlert(error: error)
+        alert.messageText = "Unable to Open Markdown File"
+        alert.informativeText = url.path
+        alert.runModal()
+    }
+
+    private func scratchpadURL() -> URL {
+        let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("QuickMark", isDirectory: true)
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        return directory.appendingPathComponent("Scratchpad.md")
+    }
+}
+
+extension MarkdownPreviewWindowController: NSWindowDelegate {
+    func windowWillClose(_ notification: Notification) {
+        guard let closingWindow = notification.object as? NSWindow else { return }
+        windows.removeAll { $0 === closingWindow }
     }
 }
 
@@ -111,14 +202,6 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
             self?.previewVC.render(markdown: markdown)
         }
 
-        NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "s" {
-                self?.saveCurrentFile(nil)
-                return nil
-            }
-            return event
-        }
-
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             let w = self.splitView.bounds.width
@@ -132,12 +215,12 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
         editorVC.setText(markdown)
         previewVC.baseURL = url.deletingLastPathComponent()
         previewVC.render(markdown: markdown, baseURL: url.deletingLastPathComponent())
-        editorVC.currentURL = url
+        editorVC.setCurrentURL(url)
     }
 
     func loadNew() {
         editorVC.setText("")
-        editorVC.currentURL = nil
+        editorVC.setCurrentURL(nil)
         previewVC.baseURL = nil
         previewVC.render(markdown: "")
         viewMode = .both
@@ -156,9 +239,29 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
         editorVC.saveFile()
     }
 
+    @objc func copyHTML(_ sender: Any?) {
+        let html = MarkdownRenderer.render(markdown: editorVC.markdownText, title: window?.title ?? "QuickMark")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(html, forType: .html)
+        NSPasteboard.general.setString(html, forType: .string)
+        flashTitle("✓ HTML Copied")
+    }
+
+    @objc func findInSource(_ sender: Any?) {
+        editorVC.showFindPanel()
+    }
+
     @objc func newDocument(_ sender: Any?) {
-        loadNew()
-        window?.title = "Untitled"
+        MarkdownPreviewWindowController.shared.showNewDocument()
+    }
+
+    private func flashTitle(_ title: String) {
+        guard let window else { return }
+        let original = window.title
+        window.title = title
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak window] in
+            window?.title = original
+        }
     }
 
     @objc func toggleViewMode(_ sender: Any?) {
@@ -196,12 +299,14 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
 
     // MARK: NSToolbarDelegate
 
+    private static let toolbarButtonSize = NSSize(width: 72, height: 28)
+
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [NSToolbarItem.Identifier("new"), NSToolbarItem.Identifier("save"), .flexibleSpace, NSToolbarItem.Identifier("toggle")]
+        [NSToolbarItem.Identifier("new"), NSToolbarItem.Identifier("save"), NSToolbarItem.Identifier("copyHTML"), NSToolbarItem.Identifier("toggle")]
     }
 
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [NSToolbarItem.Identifier("new"), NSToolbarItem.Identifier("save"), NSToolbarItem.Identifier("toggle"), .flexibleSpace, .space]
+        [NSToolbarItem.Identifier("new"), NSToolbarItem.Identifier("save"), NSToolbarItem.Identifier("copyHTML"), NSToolbarItem.Identifier("toggle"), .space]
     }
 
     func toolbar(_ toolbar: NSToolbar,
@@ -209,44 +314,72 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
                  willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
         switch itemIdentifier.rawValue {
         case "new":
-            let item = NSToolbarItem(itemIdentifier: itemIdentifier)
-            item.label = "New"
-            item.toolTip = "New document (⌘N)"
-            item.image = NSImage(systemSymbolName: "doc.badge.plus", accessibilityDescription: "New")
-            item.target = self
-            item.action = #selector(newDocument(_:))
-            return item
+            return toolbarButton(
+                identifier: itemIdentifier,
+                label: "New",
+                toolTip: "New document (⌘N)",
+                systemImageName: "doc.badge.plus",
+                action: #selector(newDocument(_:))
+            )
         case "save":
-            let item = NSToolbarItem(itemIdentifier: itemIdentifier)
-            item.label = "Save"
-            item.toolTip = "Save file (⌘S)"
-            item.image = NSImage(systemSymbolName: "square.and.arrow.down",
-                                 accessibilityDescription: "Save")
-            item.target = self
-            item.action = #selector(saveCurrentFile(_:))
-            return item
+            return toolbarButton(
+                identifier: itemIdentifier,
+                label: "Save",
+                toolTip: "Save file (⌘S)",
+                systemImageName: "square.and.arrow.down",
+                action: #selector(saveCurrentFile(_:))
+            )
+        case "copyHTML":
+            return toolbarButton(
+                identifier: itemIdentifier,
+                label: "Copy HTML",
+                toolTip: "Copy rendered HTML",
+                systemImageName: "doc.on.doc",
+                action: #selector(copyHTML(_:))
+            )
         case "toggle":
-            let item = NSToolbarItem(itemIdentifier: itemIdentifier)
-            item.label = "View"
-            item.toolTip = "Toggle view (Split / Source / Preview)"
-
-            let cfg = NSImage.SymbolConfiguration(pointSize: 15, weight: .medium)
-            let img = NSImage(systemSymbolName: viewMode.icon, accessibilityDescription: viewMode.label)?
-                          .withSymbolConfiguration(cfg) ?? NSImage()
-
-            let btn = NSButton(image: img, target: self, action: #selector(toggleViewMode(_:)))
-            btn.bezelStyle = .texturedRounded
-            btn.isBordered = false
-            btn.frame = NSRect(x: 0, y: 0, width: 36, height: 28)
-
-            item.view = btn
-            item.minSize = NSSize(width: 36, height: 28)
-            item.maxSize = NSSize(width: 36, height: 28)
-            toggleButtonRef = btn
+            let item = toolbarButton(
+                identifier: itemIdentifier,
+                label: "View",
+                toolTip: "Toggle view (Split / Source / Preview)",
+                systemImageName: viewMode.icon,
+                action: #selector(toggleViewMode(_:))
+            )
+            toggleButtonRef = item.view as? NSButton
             return item
         default:
             return nil
         }
+    }
+
+    private func toolbarButton(
+        identifier: NSToolbarItem.Identifier,
+        label: String,
+        toolTip: String,
+        systemImageName: String,
+        action: Selector
+    ) -> NSToolbarItem {
+        let item = NSToolbarItem(itemIdentifier: identifier)
+        item.label = label
+        item.paletteLabel = label
+        item.toolTip = toolTip
+
+        let cfg = NSImage.SymbolConfiguration(pointSize: 15, weight: .medium)
+        let image = NSImage(systemSymbolName: systemImageName, accessibilityDescription: label)?
+            .withSymbolConfiguration(cfg) ?? NSImage()
+        let button = NSButton(image: image, target: self, action: action)
+        button.bezelStyle = .texturedRounded
+        button.isBordered = false
+        button.frame = NSRect(origin: .zero, size: Self.toolbarButtonSize)
+        button.imagePosition = .imageOnly
+        button.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            button.widthAnchor.constraint(equalToConstant: Self.toolbarButtonSize.width),
+            button.heightAnchor.constraint(equalToConstant: Self.toolbarButtonSize.height)
+        ])
+
+        item.view = button
+        return item
     }
 }
 
@@ -254,10 +387,16 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
 
 final class EditorViewController: NSViewController {
     var onTextChange: ((String) -> Void)?
-    var currentURL: URL?
+    var markdownText: String { textView.string }
 
+    private var currentURL: URL?
+    private var securityScopedURL: URL?
     private var scrollView: NSScrollView!
     private var textView: NSTextView!
+
+    deinit {
+        securityScopedURL?.stopAccessingSecurityScopedResource()
+    }
 
     override func loadView() {
         scrollView = NSScrollView()
@@ -288,6 +427,44 @@ final class EditorViewController: NSViewController {
         textView.string = markdown
     }
 
+    func setCurrentURL(_ url: URL?) {
+        securityScopedURL?.stopAccessingSecurityScopedResource()
+        securityScopedURL = nil
+        currentURL = url
+
+        guard let url else { return }
+        if url.startAccessingSecurityScopedResource() {
+            securityScopedURL = url
+        }
+    }
+
+    func showFindPanel() {
+        let alert = NSAlert()
+        alert.messageText = "Find in Source"
+        alert.informativeText = "Enter text to find in the Markdown source."
+        alert.addButton(withTitle: "Find")
+        alert.addButton(withTitle: "Cancel")
+
+        let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 260, height: 24))
+        alert.accessoryView = field
+
+        guard alert.runModal() == .alertFirstButtonReturn, !field.stringValue.isEmpty else { return }
+        find(field.stringValue)
+    }
+
+    private func find(_ query: String) {
+        let nsString = textView.string as NSString
+        let selectedEnd = textView.selectedRange().upperBound
+        var range = nsString.range(of: query, options: [.caseInsensitive], range: NSRange(location: selectedEnd, length: nsString.length - selectedEnd))
+        if range.location == NSNotFound {
+            range = nsString.range(of: query, options: [.caseInsensitive])
+        }
+        guard range.location != NSNotFound else { NSSound.beep(); return }
+        textView.setSelectedRange(range)
+        textView.scrollRangeToVisible(range)
+        view.window?.makeFirstResponder(textView)
+    }
+
     @objc func saveFile() {
         guard let url = currentURL else {
             saveAs()
@@ -314,8 +491,14 @@ final class EditorViewController: NSViewController {
         panel.nameFieldStringValue = "Untitled.md"
         panel.begin { [weak self] response in
             guard response == .OK, let url = panel.url, let self else { return }
-            self.currentURL = url
-            try? self.textView.string.write(to: url, atomically: true, encoding: .utf8)
+            self.setCurrentURL(url)
+            do {
+                try self.textView.string.write(to: url, atomically: true, encoding: .utf8)
+                RecentMarkdownStore.shared.add(url)
+            } catch {
+                let alert = NSAlert(error: error)
+                alert.runModal()
+            }
         }
     }
 }
@@ -350,12 +533,27 @@ final class PreviewWebViewController: NSViewController, WKNavigationDelegate {
                  decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if navigationAction.navigationType == .linkActivated {
-            if let url = navigationAction.request.url {
+            if UserDefaults.standard.bool(forKey: QuickMarkSettings.openPreviewLinksExternally),
+               let url = navigationAction.request.url,
+               Self.canOpenExternally(url) {
                 NSWorkspace.shared.open(url)
             }
             decisionHandler(.cancel)
-        } else {
+        } else if Self.isAllowedPreviewURL(navigationAction.request.url) {
             decisionHandler(.allow)
+        } else {
+            decisionHandler(.cancel)
         }
+    }
+
+    private static func isAllowedPreviewURL(_ url: URL?) -> Bool {
+        guard let url else { return true }
+        guard let scheme = url.scheme?.lowercased() else { return true }
+        return scheme == "file" || scheme == "about"
+    }
+
+    private static func canOpenExternally(_ url: URL) -> Bool {
+        guard let scheme = url.scheme?.lowercased() else { return false }
+        return scheme == "http" || scheme == "https" || scheme == "mailto"
     }
 }
