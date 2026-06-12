@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src file: data:; media-src file: data:; font-src file: data:; style-src 'unsafe-inline'; script-src 'nonce-{{SCRIPT_NONCE}}'; connect-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'none'; form-action 'none'">
 <title>{{TITLE}}</title>
 <style>
 /* ---------- Light theme variables (default) ---------- */
@@ -207,10 +208,10 @@ html, body {
 <article class="markdown-body">
 {{CONTENT}}
 </article>
-<script>
+<script nonce="{{SCRIPT_NONCE}}">
 {{HIGHLIGHT_JS}}
 </script>
-<script>
+<script nonce="{{SCRIPT_NONCE}}">
 (function() {
   function run() {
     if (typeof hljs !== 'undefined' && typeof hljs.highlightAll === 'function') {

@@ -16,6 +16,7 @@ public enum HTMLTemplate {
         static let highlightJS        = "{{HIGHLIGHT_JS}}"
         static let highlightLightCSS  = "{{HIGHLIGHT_LIGHT_CSS}}"
         static let highlightDarkCSS   = "{{HIGHLIGHT_DARK_CSS}}"
+        static let scriptNonce        = "{{SCRIPT_NONCE}}"
     }
 
     // MARK: - Resource names
@@ -36,7 +37,9 @@ public enum HTMLTemplate {
     /// - Returns: A fully self-contained HTML string.
     public static func build(bodyHTML: String, title: String) -> String {
         var html = templateString()
+        let scriptNonce = UUID().uuidString.replacingOccurrences(of: "-", with: "")
         html = html.replacingOccurrences(of: Placeholder.title,             with: htmlEscape(title))
+        html = html.replacingOccurrences(of: Placeholder.scriptNonce,       with: scriptNonce)
         html = html.replacingOccurrences(of: Placeholder.highlightLightCSS, with: loadResource(Resource.highlightLight))
         html = html.replacingOccurrences(of: Placeholder.highlightDarkCSS,  with: loadResource(Resource.highlightDark))
         html = html.replacingOccurrences(of: Placeholder.highlightJS,       with: loadResource(Resource.highlightJS))
@@ -59,12 +62,13 @@ public enum HTMLTemplate {
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="color-scheme" content="light dark">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src file: data:; media-src file: data:; font-src file: data:; style-src 'unsafe-inline'; script-src 'nonce-\(Placeholder.scriptNonce)'; connect-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'none'; form-action 'none'">
         <title>\(Placeholder.title)</title>
         <style>\(Placeholder.highlightLightCSS)\n@media (prefers-color-scheme: dark){\(Placeholder.highlightDarkCSS)}</style>
         </head>
         <body><article class="markdown-body">\(Placeholder.content)</article>
-        <script>\(Placeholder.highlightJS)</script>
-        <script>if(typeof hljs!=='undefined'){hljs.highlightAll();}</script>
+        <script nonce="\(Placeholder.scriptNonce)">\(Placeholder.highlightJS)</script>
+        <script nonce="\(Placeholder.scriptNonce)">if(typeof hljs!=='undefined'){hljs.highlightAll();}</script>
         </body></html>
         """
     }
