@@ -204,11 +204,9 @@
 				TargetAttributes = {
 					183D479E6DE0A841E5AFCFFB = {
 						DevelopmentTeam = "";
-						ProvisioningStyle = Automatic;
 					};
 					8FE1094769F2A06EF7E1D49C = {
 						DevelopmentTeam = "";
-						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -284,7 +282,9 @@
 		2B4726FF4FF3DA6E6D01F8F8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = QuickMarkQL/QuickMarkQL.entitlements;
+				CODE_SIGN_ENTITLEMENTS = QuickMarkQL/PeekMarkQLDebug.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = QuickMarkQL/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -295,6 +295,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.peekmark.PeekMark.PeekMarkQL;
 				PRODUCT_NAME = PeekMarkQL;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -362,6 +363,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = QuickMarkQL/QuickMarkQL.entitlements;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = QuickMarkQL/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -380,7 +382,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = PeekMark;
-				CODE_SIGN_ENTITLEMENTS = QuickMarkApp/QuickMarkApp.entitlements;
+				CODE_SIGN_ENTITLEMENTS = QuickMarkApp/PeekMarkDebug.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = QuickMarkApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -390,6 +394,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.peekmark.PeekMark;
 				PRODUCT_NAME = PeekMark;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -465,6 +470,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = PeekMark;
 				CODE_SIGN_ENTITLEMENTS = QuickMarkApp/QuickMarkApp.entitlements;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = QuickMarkApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
