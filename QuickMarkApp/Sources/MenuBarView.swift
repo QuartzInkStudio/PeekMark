@@ -4,12 +4,22 @@ import QuickMarkCore
 
 struct MenuBarView: View {
     let updater: UpdaterController
+    @AppStorage(QuickMarkSettings.scratchpadHotKey) private var selectedHotKey = ScratchpadHotKeyOption.commandShiftM.rawValue
+    @AppStorage(QuickMarkSettings.scratchpadHotKeyEnabled) private var hotKeyEnabled = true
+    @AppStorage("ScratchpadHotKeyRegistrationStatus") private var registrationStatus = "registered"
 
     var body: some View {
         Button("New Document") {
             MarkdownPreviewWindowController.shared.showNewDocument()
         }
         .keyboardShortcut("n")
+
+        Button("Open Scratchpad") {
+            MarkdownPreviewWindowController.shared.showScratchpad()
+        }
+
+        Text(hotKeyStatusText)
+            .foregroundStyle(.secondary)
 
         Divider()
 
@@ -45,18 +55,16 @@ struct MenuBarView: View {
     }
 
     private func openFilePicker() {
-        let panel = NSOpenPanel()
-        panel.title = "Open Markdown File"
-        panel.allowedContentTypes = [
-            .init(filenameExtension: "md")!,
-            .init(filenameExtension: "markdown")!
-        ]
-        panel.allowsMultipleSelection = false
-        panel.canChooseFiles = true
-        panel.canChooseDirectories = false
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else { return }
-            MarkdownPreviewWindowController.shared.show(url: url)
-        }
+        MarkdownPreviewWindowController.shared.openMarkdownDocument()
+    }
+
+    private var hotKeyLabel: String {
+        (ScratchpadHotKeyOption(rawValue: selectedHotKey) ?? .commandShiftM).label
+    }
+
+    private var hotKeyStatusText: String {
+        if !hotKeyEnabled { return "Scratchpad Hotkey: Off" }
+        if registrationStatus == "unavailable" { return "Scratchpad Hotkey: Unavailable" }
+        return "Scratchpad Hotkey: \(hotKeyLabel)"
     }
 }

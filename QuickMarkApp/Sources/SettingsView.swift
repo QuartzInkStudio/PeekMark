@@ -6,10 +6,14 @@ struct SettingsView: View {
         TabView {
             GeneralSettingsView()
                 .tabItem { Label("General", systemImage: "gear") }
+            ScratchpadSettingsView()
+                .tabItem { Label("Scratchpad", systemImage: "square.and.pencil") }
+            PreviewSettingsView()
+                .tabItem { Label("Preview", systemImage: "doc.richtext") }
             AboutView()
                 .tabItem { Label("About", systemImage: "info.circle") }
         }
-        .frame(width: 420, height: 280)
+        .frame(width: 460, height: 320)
         .padding()
     }
 }
@@ -18,7 +22,7 @@ private struct GeneralSettingsView: View {
     var body: some View {
         Form {
             Section("Quick Look Extension") {
-                Text("The QuickMark Quick Look extension is active.\nSelect a .md file in Finder and press Space to preview.")
+                Text("Build and sign QuickMark, then select a .md file in Finder and press Space to preview.")
                     .foregroundStyle(.secondary)
                     .font(.subheadline)
             }
@@ -29,6 +33,56 @@ private struct GeneralSettingsView: View {
                 Button("Learn More…") {
                     NSWorkspace.shared.open(URL(string: "https://quickmark.app")!)
                 }
+            }
+        }
+        .formStyle(.grouped)
+    }
+}
+
+private struct ScratchpadSettingsView: View {
+    @AppStorage(QuickMarkSettings.scratchpadHotKeyEnabled) private var hotKeyEnabled = true
+    @AppStorage(QuickMarkSettings.scratchpadHotKey) private var selectedHotKey = ScratchpadHotKeyOption.commandShiftM.rawValue
+    @AppStorage("ScratchpadHotKeyRegistrationStatus") private var registrationStatus = "registered"
+
+    var body: some View {
+        Form {
+            Section("Global Hotkey") {
+                Toggle("Enable Scratchpad hotkey", isOn: $hotKeyEnabled)
+                Picker("Shortcut", selection: $selectedHotKey) {
+                    ForEach(ScratchpadHotKeyOption.allCases) { option in
+                        Text(option.label).tag(option.rawValue)
+                    }
+                }
+                .disabled(!hotKeyEnabled)
+
+                Text("The shortcut opens the existing Scratchpad window, or creates it if needed.")
+                    .foregroundStyle(.secondary)
+                    .font(.caption)
+                Text(statusText)
+                    .foregroundStyle(registrationStatus == "unavailable" ? .red : .secondary)
+                    .font(.caption)
+            }
+        }
+        .formStyle(.grouped)
+    }
+
+    private var statusText: String {
+        if !hotKeyEnabled { return "Status: Off" }
+        if registrationStatus == "unavailable" { return "Status: Unavailable. Choose another shortcut." }
+        return "Status: Registered"
+    }
+}
+
+private struct PreviewSettingsView: View {
+    @AppStorage(QuickMarkSettings.openPreviewLinksExternally) private var openLinksExternally = true
+
+    var body: some View {
+        Form {
+            Section("Links") {
+                Toggle("Open clicked preview links in the default browser", isOn: $openLinksExternally)
+                Text("Quick Look previews still block clicked links. This setting only affects document windows in the app.")
+                    .foregroundStyle(.secondary)
+                    .font(.caption)
             }
         }
         .formStyle(.grouped)

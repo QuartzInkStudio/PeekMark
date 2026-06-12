@@ -10,10 +10,11 @@ struct ContentView: View {
                 .foregroundStyle(.secondary)
             Text("QuickMark")
                 .font(.title.bold())
-            Text("Markdown Quick Look extension is active.\nSelect a .md file in Finder and press Space to preview.")
+            Text("Quick Look preview is ready.\nSelect a Markdown file in Finder, then press Space to preview.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
             Divider()
             HStack(spacing: 16) {
                 Button("New") {
@@ -28,7 +29,7 @@ struct ContentView: View {
             }
         }
         .padding(40)
-        .frame(minWidth: 400, minHeight: 280)
+        .frame(minWidth: 480, minHeight: 300)
     }
 
     private func newDocument() {
@@ -38,22 +39,6 @@ struct ContentView: View {
     }
 
     private func openFilePicker() {
-        let panel = NSOpenPanel()
-        panel.title = "Open Markdown File"
-        panel.allowedContentTypes = [
-            .init(filenameExtension: "md")!,
-            .init(filenameExtension: "markdown")!,
-            .init(filenameExtension: "mdown")!,
-            .init(filenameExtension: "mkd")!
-        ]
-        panel.allowsMultipleSelection = false
-        panel.canChooseFiles = true
-        panel.canChooseDirectories = false
-        let welcomeWindow = NSApp.keyWindow
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else { return }
-            MarkdownPreviewWindowController.shared.show(url: url)
-            welcomeWindow?.close()
-        }
+        MarkdownPreviewWindowController.shared.openMarkdownDocument(closing: NSApp.keyWindow)
     }
 }
