@@ -22,16 +22,16 @@ private struct GeneralSettingsView: View {
     var body: some View {
         Form {
             Section("Quick Look Extension") {
-                Text("Build and sign QuickMark, then select a .md file in Finder and press Space to preview.")
+                Text("Build and sign PeekMark, then select a .md file in Finder and press Space to preview.")
                     .foregroundStyle(.secondary)
                     .font(.subheadline)
             }
             Section("Pro Features") {
-                Text("Custom themes, Mermaid diagrams, and PDF export are available in QuickMark Pro.")
+                Text("Custom themes, Mermaid diagrams, and PDF export are available in PeekMark Pro.")
                     .foregroundStyle(.secondary)
                     .font(.subheadline)
                 Button("Learn More…") {
-                    NSWorkspace.shared.open(URL(string: "https://quickmark.app")!)
+                    NSWorkspace.shared.open(URL(string: "https://peekmark.app")!)
                 }
             }
         }
@@ -95,15 +95,15 @@ private struct AboutView: View {
             Image(systemName: "doc.text.magnifyingglass")
                 .font(.system(size: 48))
                 .foregroundStyle(.secondary)
-            Text("QuickMark")
+            Text("PeekMark")
                 .font(.title2.bold())
             Text("Version 0.1.0 (Community)")
                 .foregroundStyle(.secondary)
             Text("AGPL-3.0 Open Source")
                 .foregroundStyle(.secondary)
                 .font(.caption)
-            Link("github.com/charlessnow/QuickMark",
-                 destination: URL(string: "https://github.com/charlessnow/QuickMark")!)
+            Link("github.com/charlessnow/PeekMark",
+                 destination: URL(string: "https://github.com/charlessnow/PeekMark")!)
                 .font(.caption)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

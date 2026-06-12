@@ -8,7 +8,7 @@ struct ContentView: View {
             Image(systemName: "doc.text.magnifyingglass")
                 .font(.system(size: 56))
                 .foregroundStyle(.secondary)
-            Text("QuickMark")
+            Text("PeekMark")
                 .font(.title.bold())
             Text("Quick Look preview is ready.\nSelect a Markdown file in Finder, then press Space to preview.")
                 .font(.subheadline)

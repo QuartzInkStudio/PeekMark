@@ -36,7 +36,7 @@ struct MenuBarView: View {
         }
         .keyboardShortcut(",")
 
-        Button("About QuickMark") {
+        Button("About PeekMark") {
             NSApp.orderFrontStandardAboutPanel(nil)
             NSApp.activate(ignoringOtherApps: true)
         }
@@ -48,7 +48,7 @@ struct MenuBarView: View {
 
         Divider()
 
-        Button("Quit QuickMark") {
+        Button("Quit PeekMark") {
             NSApp.terminate(nil)
         }
         .keyboardShortcut("q")
