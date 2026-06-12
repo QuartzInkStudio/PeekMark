@@ -14,7 +14,7 @@ struct QuickMarkApp: App {
     }
 
     var body: some Scene {
-        // Main window (shown on first launch or from menu bar "Open QuickMark")
+        // Main window (shown on first launch or from menu bar "Open PeekMark")
         WindowGroup {
             ContentView()
         }
@@ -44,7 +44,7 @@ struct QuickMarkApp: App {
         }
 
         // Menu bar extra
-        MenuBarExtra("QuickMark", systemImage: "doc.text.magnifyingglass") {
+        MenuBarExtra("PeekMark", systemImage: "doc.text.magnifyingglass") {
             MenuBarView(updater: updater)
         }
         .menuBarExtraStyle(.menu)
@@ -242,7 +242,7 @@ struct QuickMarkFileCommands: Commands {
             Button("New Document") {
                 let welcomeWindow = NSApp.keyWindow
                 MarkdownPreviewWindowController.shared.showNewDocument()
-                if welcomeWindow?.title == "QuickMark" {
+                if welcomeWindow?.title == "PeekMark" {
                     welcomeWindow?.close()
                 }
             }
@@ -253,7 +253,7 @@ struct QuickMarkFileCommands: Commands {
             Button("Open Markdown…") {
                 let welcomeWindow = NSApp.keyWindow
                 MarkdownPreviewWindowController.shared.openMarkdownDocument(
-                    closing: welcomeWindow?.title == "QuickMark" ? welcomeWindow : nil
+                    closing: welcomeWindow?.title == "PeekMark" ? welcomeWindow : nil
                 )
             }
             .keyboardShortcut("o")

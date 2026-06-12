@@ -86,7 +86,7 @@ final class MarkdownPreviewWindowController: NSObject {
             backing: .buffered,
             defer: false
         )
-        win.title = "QuickMark"
+        win.title = "PeekMark"
         win.contentViewController = vc
         win.center()
         win.isReleasedWhenClosed = false
@@ -139,7 +139,7 @@ final class MarkdownPreviewWindowController: NSObject {
 
     private func scratchpadURL() -> URL {
         let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("QuickMark", isDirectory: true)
+            .appendingPathComponent("PeekMark", isDirectory: true)
         try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         return directory.appendingPathComponent("Scratchpad.md")
     }
@@ -240,7 +240,7 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
     }
 
     @objc func copyHTML(_ sender: Any?) {
-        let html = MarkdownRenderer.render(markdown: editorVC.markdownText, title: window?.title ?? "QuickMark")
+        let html = MarkdownRenderer.render(markdown: editorVC.markdownText, title: window?.title ?? "PeekMark")
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(html, forType: .html)
         NSPasteboard.general.setString(html, forType: .string)
