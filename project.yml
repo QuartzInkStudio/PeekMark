@@ -30,6 +30,7 @@ targets:
     sources:
       - path: QuickMarkApp/Sources
         createIntermediateGroups: true
+      - path: QuickMarkApp/PeekMark.icon
     dependencies:
       - package: QuickMarkCore
         product: QuickMarkCore
@@ -43,7 +44,7 @@ targets:
         PRODUCT_NAME: PeekMark
         INFOPLIST_FILE: QuickMarkApp/Info.plist
         CODE_SIGN_ENTITLEMENTS: QuickMarkApp/QuickMarkApp.entitlements
-        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_APPICON_NAME: PeekMark
     entitlements:
       path: QuickMarkApp/QuickMarkApp.entitlements
       properties:

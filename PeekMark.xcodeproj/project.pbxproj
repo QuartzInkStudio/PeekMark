@@ -10,6 +10,7 @@
 		0380779D5DEB1C8265E8AB70 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 847FEF9BA02D5355EC8094FE /* Sparkle */; };
 		426FFA17A3F04AD1757A3A06 /* UpdaterSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F3F68237ADB1649166420A0 /* UpdaterSetup.swift */; };
 		4551188D8385C2B65C06C744 /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99E3B7C4790DE780684B589 /* PreviewViewController.swift */; };
+		4DF1B27585C0CF238388419E /* PeekMark.icon in Resources */ = {isa = PBXBuildFile; fileRef = 43731500C5E9DD1F8557F34A /* PeekMark.icon */; };
 		95DFEE4F2E95AE924007CF86 /* QuickMarkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7586801FBC1E18B46CE2C3 /* QuickMarkApp.swift */; };
 		A39E4B45E775547410DC6972 /* QuickMarkQLExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 204900AB29E8EB080F34344E /* QuickMarkQLExtension.swift */; };
 		A94541A1B106C6DDE59CE91D /* MarkdownPreviewWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1032F275C06D493280925DD /* MarkdownPreviewWindow.swift */; };
@@ -50,6 +51,7 @@
 		1A7586801FBC1E18B46CE2C3 /* QuickMarkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickMarkApp.swift; sourceTree = "<group>"; };
 		204900AB29E8EB080F34344E /* QuickMarkQLExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickMarkQLExtension.swift; sourceTree = "<group>"; };
 		2B914935358C770585AC12DB /* PeekMark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PeekMark.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		43731500C5E9DD1F8557F34A /* PeekMark.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = PeekMark.icon; sourceTree = "<group>"; };
 		497C159C6A02CEE6D4B8197E /* PeekMarkQL.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PeekMarkQL.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F3F68237ADB1649166420A0 /* UpdaterSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdaterSetup.swift; sourceTree = "<group>"; };
 		84DC41A3D9348F906F618F5D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 			isa = PBXGroup;
 			children = (
 				668CCFF6AD3FC7CF69F9FBD3 /* Sources */,
+				43731500C5E9DD1F8557F34A /* PeekMark.icon */,
 			);
 			path = QuickMarkApp;
 			sourceTree = "<group>";
@@ -153,6 +156,7 @@
 			buildConfigurationList = 02E4BC1362DC0DB7F1C0E622 /* Build configuration list for PBXNativeTarget "PeekMark" */;
 			buildPhases = (
 				A597C4C7028422A712B24EEC /* Sources */,
+				D8BC43C854C1D38A4E13FB25 /* Resources */,
 				8DF580A503043D199ED61A21 /* Frameworks */,
 				88475D165EAF36A535F29C8F /* Embed Foundation Extensions */,
 			);
@@ -231,6 +235,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D8BC43C854C1D38A4E13FB25 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DF1B27585C0CF238388419E /* PeekMark.icon in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A597C4C7028422A712B24EEC /* Sources */ = {
@@ -364,7 +379,7 @@
 		B316ECDAF3DD3E2CE9D86822 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = PeekMark;
 				CODE_SIGN_ENTITLEMENTS = QuickMarkApp/QuickMarkApp.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = QuickMarkApp/Info.plist;
@@ -448,7 +463,7 @@
 		F709C5123BD76E0098287723 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = PeekMark;
 				CODE_SIGN_ENTITLEMENTS = QuickMarkApp/QuickMarkApp.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = QuickMarkApp/Info.plist;
