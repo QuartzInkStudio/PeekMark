@@ -1,6 +1,6 @@
 # Contributor License Agreement
 
-By submitting a pull request or otherwise contributing to QuickMark, you agree:
+By submitting a pull request or otherwise contributing to PeekMark, you agree:
 
 1. **Copyright Grant**: You grant the project maintainer a perpetual, worldwide,
    non-exclusive, royalty-free license to reproduce, modify, distribute, and
@@ -16,7 +16,7 @@ By submitting a pull request or otherwise contributing to QuickMark, you agree:
 4. **No Obligation**: The maintainer is under no obligation to include your
    contribution.
 
-> **Why a CLA?** QuickMark uses a dual-license model: AGPL-3.0 for the community
+> **Why a CLA?** PeekMark uses a dual-license model: AGPL-3.0 for the community
 > edition and a proprietary license for the Pro edition. The CLA ensures the
 > maintainer can legally include community contributions in both editions. 
 

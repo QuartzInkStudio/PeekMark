@@ -25,7 +25,7 @@
 
 ## After the Script
 
-1. Create GitHub Release for `v0.x.0`, upload `build/QuickMark-0.x.0.dmg`
+1. Create GitHub Release for `v0.x.0`, upload `build/PeekMark-0.x.0.dmg`
 2. Update `appcast.xml` on your website with:
    - New `<item>` entry
    - `sparkle:edSignature` from the script output
