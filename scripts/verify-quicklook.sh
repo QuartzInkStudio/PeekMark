@@ -4,7 +4,7 @@ set -euo pipefail
 APP_PATH="${1:-}"
 
 if [[ -z "$APP_PATH" ]]; then
-  echo "Usage: scripts/verify-quicklook.sh /path/to/QuickMark.app [/path/to/sample.md]" >&2
+  echo "Usage: scripts/verify-quicklook.sh /path/to/PeekMark.app [/path/to/sample.md]" >&2
   exit 64
 fi
 
@@ -13,12 +13,12 @@ if [[ ! -d "$APP_PATH" ]]; then
   exit 66
 fi
 
-SAMPLE_PATH="${2:-$(mktemp -t quickmark-quicklook.XXXXXX.md)}"
+SAMPLE_PATH="${2:-$(mktemp -t peekmark-quicklook.XXXXXX.md)}"
 if [[ $# -lt 2 ]]; then
-  printf '# QuickMark Quick Look Verification\n\nIf this renders, the extension is available.\n' > "$SAMPLE_PATH"
+  printf '# PeekMark Quick Look Verification\n\nIf this renders, the extension is available.\n' > "$SAMPLE_PATH"
 fi
 
-APPEX_PATH="$APP_PATH/Contents/PlugIns/QuickMarkQL.appex"
+APPEX_PATH="$APP_PATH/Contents/PlugIns/PeekMarkQL.appex"
 
 echo "==> Checking app bundle"
 /usr/bin/codesign --verify --deep --strict --verbose=2 "$APP_PATH"

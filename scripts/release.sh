@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# QuickMark release script
+# PeekMark release script
 # Usage: ./scripts/release.sh <version>
 # Requires: Xcode Developer tools, Apple Developer account configured
 # Set these environment variables before running:
@@ -12,15 +12,15 @@ set -euo pipefail
 
 VERSION="${1:?Usage: release.sh <version>}"
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-ARCHIVE_PATH="$PROJECT_DIR/build/QuickMark.xcarchive"
+ARCHIVE_PATH="$PROJECT_DIR/build/PeekMark.xcarchive"
 EXPORT_PATH="$PROJECT_DIR/build/export"
-DMG_PATH="$PROJECT_DIR/build/QuickMark-$VERSION.dmg"
-APP_PATH="$EXPORT_PATH/QuickMark.app"
+DMG_PATH="$PROJECT_DIR/build/PeekMark-$VERSION.dmg"
+APP_PATH="$EXPORT_PATH/PeekMark.app"
 
-echo "==> Building QuickMark $VERSION"
+echo "==> Building PeekMark $VERSION"
 xcodebuild \
-  -project "$PROJECT_DIR/QuickMark.xcodeproj" \
-  -scheme QuickMark \
+  -project "$PROJECT_DIR/PeekMark.xcodeproj" \
+  -scheme PeekMark \
   -configuration Release \
   -archivePath "$ARCHIVE_PATH" \
   archive
@@ -44,7 +44,7 @@ xcrun stapler staple "$APP_PATH"
 
 echo "==> Creating DMG"
 hdiutil create \
-  -volname "QuickMark $VERSION" \
+  -volname "PeekMark $VERSION" \
   -srcfolder "$APP_PATH" \
   -ov -format UDZO \
   "$DMG_PATH"
@@ -59,4 +59,4 @@ fi
 echo "✅ Release complete: $DMG_PATH"
 echo "Next steps:"
 echo "  1. Upload $DMG_PATH to GitHub Release v$VERSION"
-echo "  2. Update https://quickmark.app/appcast.xml with new version/signature"
+echo "  2. Update https://peekmark.app/appcast.xml with new version/signature"
