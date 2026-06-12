@@ -40,8 +40,8 @@ closed-source Pro modules loaded behind compile-time flags and license checks.
 Requires macOS 14+, Xcode 15+.
 
 ```bash
-git clone https://github.com/yourname/quickmark.git
-cd quickmark
+git clone https://github.com/charlessnow/QuickMark.git
+cd QuickMark
 open QuickMark.xcodeproj
 ```
 

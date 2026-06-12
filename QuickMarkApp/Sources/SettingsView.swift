@@ -102,8 +102,8 @@ private struct AboutView: View {
             Text("AGPL-3.0 Open Source")
                 .foregroundStyle(.secondary)
                 .font(.caption)
-            Link("github.com/yourname/quickmark",
-                 destination: URL(string: "https://github.com/yourname/quickmark")!)
+            Link("github.com/charlessnow/QuickMark",
+                 destination: URL(string: "https://github.com/charlessnow/QuickMark")!)
                 .font(.caption)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
