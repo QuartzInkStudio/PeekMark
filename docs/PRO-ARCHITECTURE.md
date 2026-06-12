@@ -1,6 +1,6 @@
-# QuickMark Pro Architecture
+# PeekMark Pro Architecture
 
-QuickMark uses an open-core model:
+PeekMark uses an open-core model:
 
 - **Community**: AGPL-3.0, fully public in this repository.
 - **Pro**: proprietary, distributed only in official signed binaries.
@@ -10,14 +10,14 @@ QuickMark uses an open-core model:
 Use two Git repositories, not one public folder:
 
 ```text
-quickmark/                 # public AGPL repo
+peekmark/                 # public AGPL repo
   QuickMarkApp/
   QuickMarkCore/
   QuickMarkQL/
   docs/
   project.yml
 
-QuickMark-pro-kit/         # private repo
+PeekMark-pro-kit/         # private repo
   Package.swift
   Sources/QuickMarkProKit/
     ProFeatureRegistry.swift
@@ -92,8 +92,8 @@ Keep the public contract small. Avoid leaking Pro class names, license server UR
 Use a private build overlay for official releases:
 
 ```text
-quickmark-private-build/
-  QuickMark-Pro.xcconfig
+peekmark-private-build/
+  PeekMark-Pro.xcconfig
   project-pro.yml
   Package.resolved
   scripts/release-pro.sh
@@ -101,7 +101,7 @@ quickmark-private-build/
 
 The private overlay adds:
 
-- The private Swift Package dependency: `QuickMarkProKit` from `QuickMark-pro-kit`.
+- The private Swift Package dependency: `QuickMarkProKit` from `PeekMark-pro-kit`.
 - `PRO` Swift compilation condition.
 - Product bundle/signing/release settings.
 - StoreKit product IDs or license endpoint config from local secrets.
@@ -113,12 +113,12 @@ The public repo remains buildable without access to Pro.
 Recommended local checkout:
 
 ```text
-~/dev/quickmark/            # public repo
-~/dev/QuickMark-pro-kit/    # private repo
-~/dev/quickmark-build/      # private overlay/release scripts
+~/dev/peekmark/            # public repo
+~/dev/PeekMark-pro-kit/    # private repo
+~/dev/peekmark-build/      # private overlay/release scripts
 ```
 
-During Pro development, the private overlay references `../QuickMark-pro-kit` as a local package. CI/release can reference the private Git URL using GitHub Actions secrets or a deploy key.
+During Pro development, the private overlay references `../PeekMark-pro-kit` as a local package. CI/release can reference the private Git URL using GitHub Actions secrets or a deploy key.
 
 ## Licensing Flow
 
