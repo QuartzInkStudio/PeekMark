@@ -40,4 +40,25 @@ final class PreviewIntelligenceTests: XCTestCase {
         XCTAssertFalse(html.contains("peekmark-wikilink://Do%20Not%20Link"))
         XCTAssertTrue(html.contains("[[Do Not Link]]"))
     }
+
+    func testResolvesSameDirectoryWikilinkCandidates() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let target = directory.appendingPathComponent("rendering-notes.md")
+        try "# Rendering Notes".write(to: target, atomically: true, encoding: .utf8)
+
+        XCTAssertEqual(
+            MarkdownWikilinkResolver.resolve("Rendering Notes", in: directory)?.lastPathComponent,
+            "rendering-notes.md"
+        )
+        XCTAssertNil(MarkdownWikilinkResolver.resolve("Missing Note", in: directory))
+    }
+
+    func testExtractsWikilinkTargetFromURL() {
+        let url = URL(string: "peekmark-wikilink://Rendering%20Notes")
+        XCTAssertEqual(MarkdownWikilinkResolver.target(from: url), "Rendering Notes")
+    }
 }

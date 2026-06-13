@@ -70,7 +70,7 @@ struct PreviewIntelligence {
     }
 
     private static func percentEncode(_ text: String) -> String {
-        text.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? text
+        text.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? text
     }
 }
 
