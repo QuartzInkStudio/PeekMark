@@ -42,11 +42,21 @@ extension PreviewViewController: WKNavigationDelegate {
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         // Only allow local file:// URLs — block all remote navigation
         if navigationAction.navigationType == .linkActivated {
-            decisionHandler(.cancel)
+            if Self.isLocalAnchor(navigationAction.request.url) {
+                decisionHandler(.allow)
+            } else {
+                decisionHandler(.cancel)
+            }
         } else if let url = navigationAction.request.url, url.isFileURL || url.scheme == nil {
             decisionHandler(.allow)
         } else {
             decisionHandler(.cancel)
         }
+    }
+
+    private static func isLocalAnchor(_ url: URL?) -> Bool {
+        guard let url, url.fragment?.isEmpty == false else { return false }
+        guard let scheme = url.scheme?.lowercased() else { return true }
+        return scheme == "file" || scheme == "about"
     }
 }
