@@ -356,6 +356,22 @@ html, body {
 {{MERMAID_JS}}
 </script>
 <script nonce="{{SCRIPT_NONCE}}">
+window.MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+    processEscapes: true
+  },
+  options: {
+    skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  svg: { fontCache: 'none' }
+};
+</script>
+<script nonce="{{SCRIPT_NONCE}}">
+{{MATHJAX_JS}}
+</script>
+<script nonce="{{SCRIPT_NONCE}}">
 (function() {
   function prepareMermaidBlocks() {
     document.querySelectorAll('pre > code.language-mermaid, pre > code.language-mmd').forEach(function(code, index) {

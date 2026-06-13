@@ -75,6 +75,24 @@ final class PreviewIntelligenceTests: XCTestCase {
         XCTAssertTrue(html.contains("peekmark-mermaid"))
         XCTAssertTrue(html.contains("mermaid.initialize"))
         XCTAssertFalse(html.contains("{{MERMAID_JS}}"))
-        XCTAssertFalse(html.contains("https://cdn"))
+        XCTAssertFalse(html.contains("<script src="))
+    }
+
+    func testIncludesBundledMathJaxRenderingForLatexMath() {
+        let html = MarkdownRenderer.render(markdown: """
+        Inline math $E = mc^2$ and block math:
+
+        $$
+        \\int_0^1 x^2 \\, dx = \\frac{1}{3}
+        $$
+        """)
+
+        XCTAssertTrue(html.contains("E = mc^2"))
+        XCTAssertTrue(html.contains("\\int_0^1"))
+        XCTAssertTrue(html.contains("window.MathJax"))
+        XCTAssertTrue(html.contains("inlineMath"))
+        XCTAssertTrue(html.contains("displayMath"))
+        XCTAssertFalse(html.contains("{{MATHJAX_JS}}"))
+        XCTAssertFalse(html.contains("<script src="))
     }
 }
