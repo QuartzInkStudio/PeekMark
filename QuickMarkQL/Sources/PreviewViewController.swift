@@ -6,6 +6,7 @@ import QuickMarkCore
 class PreviewViewController: NSViewController, QLPreviewingController {
 
     private var webView: WKWebView!
+    private var currentDirectory: URL?
 
     override func loadView() {
         let config = WKWebViewConfiguration()
@@ -28,10 +29,12 @@ class PreviewViewController: NSViewController, QLPreviewingController {
 
         let title = url.deletingPathExtension().lastPathComponent
         let html = MarkdownRenderer.render(markdown: markdown, title: title)
+        let directory = url.deletingLastPathComponent()
 
         // baseURL is the file's directory so relative image paths resolve
         await MainActor.run {
-            webView.loadHTMLString(html, baseURL: url.deletingLastPathComponent())
+            currentDirectory = directory
+            webView.loadHTMLString(html, baseURL: directory)
         }
     }
 }
@@ -44,6 +47,8 @@ extension PreviewViewController: WKNavigationDelegate {
         if navigationAction.navigationType == .linkActivated {
             if Self.isLocalAnchor(navigationAction.request.url) {
                 decisionHandler(.allow)
+            } else if openLocalWikilink(navigationAction.request.url) {
+                decisionHandler(.cancel)
             } else {
                 decisionHandler(.cancel)
             }
@@ -58,5 +63,19 @@ extension PreviewViewController: WKNavigationDelegate {
         guard let url, url.fragment?.isEmpty == false else { return false }
         guard let scheme = url.scheme?.lowercased() else { return true }
         return scheme == "file" || scheme == "about"
+    }
+
+    private func openLocalWikilink(_ url: URL?) -> Bool {
+        guard let target = MarkdownWikilinkResolver.target(from: url) else { return false }
+        guard let directory = currentDirectory,
+              let linkedURL = MarkdownWikilinkResolver.resolve(target, in: directory),
+              let markdown = try? String(contentsOf: linkedURL, encoding: .utf8) else {
+            NSSound.beep()
+            return true
+        }
+        let html = MarkdownRenderer.render(markdown: markdown, title: linkedURL.deletingPathExtension().lastPathComponent)
+        currentDirectory = linkedURL.deletingLastPathComponent()
+        webView.loadHTMLString(html, baseURL: currentDirectory)
+        return true
     }
 }

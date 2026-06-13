@@ -537,6 +537,10 @@ final class PreviewWebViewController: NSViewController, WKNavigationDelegate {
                 decisionHandler(.allow)
                 return
             }
+            if openLocalWikilink(navigationAction.request.url) {
+                decisionHandler(.cancel)
+                return
+            }
             if UserDefaults.standard.bool(forKey: QuickMarkSettings.openPreviewLinksExternally),
                let url = navigationAction.request.url,
                Self.canOpenExternally(url) {
@@ -548,6 +552,17 @@ final class PreviewWebViewController: NSViewController, WKNavigationDelegate {
         } else {
             decisionHandler(.cancel)
         }
+    }
+
+    private func openLocalWikilink(_ url: URL?) -> Bool {
+        guard let target = MarkdownWikilinkResolver.target(from: url) else { return false }
+        guard let directory = baseURL,
+              let linkedURL = MarkdownWikilinkResolver.resolve(target, in: directory) else {
+            NSSound.beep()
+            return true
+        }
+        MarkdownPreviewWindowController.shared.show(url: linkedURL)
+        return true
     }
 
     private static func isAllowedPreviewURL(_ url: URL?) -> Bool {
