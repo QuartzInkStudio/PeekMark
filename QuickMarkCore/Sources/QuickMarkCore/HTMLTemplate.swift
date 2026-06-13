@@ -2,8 +2,9 @@ import Foundation
 
 /// Builds the self-contained HTML document that wraps rendered Markdown.
 ///
-/// Loads `template.html`, `highlight.min.js`, and the light/dark highlight.js
-/// CSS themes from the package bundle, then substitutes placeholders.
+/// Loads `template.html`, `highlight.min.js`, `mermaid.min.js`, and the
+/// light/dark highlight.js CSS themes from the package bundle, then substitutes
+/// placeholders.
 /// The resulting string is suitable for `WKWebView.loadHTMLString(_:baseURL:)`
 /// with no remote requests required.
 public enum HTMLTemplate {
@@ -14,6 +15,7 @@ public enum HTMLTemplate {
         static let title              = "{{TITLE}}"
         static let content            = "{{CONTENT}}"
         static let highlightJS        = "{{HIGHLIGHT_JS}}"
+        static let mermaidJS          = "{{MERMAID_JS}}"
         static let highlightLightCSS  = "{{HIGHLIGHT_LIGHT_CSS}}"
         static let highlightDarkCSS   = "{{HIGHLIGHT_DARK_CSS}}"
         static let scriptNonce        = "{{SCRIPT_NONCE}}"
@@ -24,6 +26,7 @@ public enum HTMLTemplate {
     private enum Resource {
         static let template       = (name: "template",        ext: "html")
         static let highlightJS    = (name: "highlight.min",   ext: "js")
+        static let mermaidJS      = (name: "mermaid.min",     ext: "js")
         static let highlightLight = (name: "highlight-light.min", ext: "css")
         static let highlightDark  = (name: "highlight-dark.min",  ext: "css")
     }
@@ -43,6 +46,7 @@ public enum HTMLTemplate {
         html = html.replacingOccurrences(of: Placeholder.highlightLightCSS, with: loadResource(Resource.highlightLight))
         html = html.replacingOccurrences(of: Placeholder.highlightDarkCSS,  with: loadResource(Resource.highlightDark))
         html = html.replacingOccurrences(of: Placeholder.highlightJS,       with: loadResource(Resource.highlightJS))
+        html = html.replacingOccurrences(of: Placeholder.mermaidJS,         with: loadResource(Resource.mermaidJS))
         // CONTENT replacement is done LAST so any literal "{{...}}" sequences
         // inside the rendered Markdown cannot collide with placeholders.
         html = html.replacingOccurrences(of: Placeholder.content,           with: bodyHTML)
@@ -69,6 +73,8 @@ public enum HTMLTemplate {
         <body><article class="markdown-body">\(Placeholder.content)</article>
         <script nonce="\(Placeholder.scriptNonce)">\(Placeholder.highlightJS)</script>
         <script nonce="\(Placeholder.scriptNonce)">if(typeof hljs!=='undefined'){hljs.highlightAll();}</script>
+        <script nonce="\(Placeholder.scriptNonce)">\(Placeholder.mermaidJS)</script>
+        <script nonce="\(Placeholder.scriptNonce)">if(typeof mermaid!=='undefined'){mermaid.initialize({startOnLoad:true,securityLevel:'strict'});}</script>
         </body></html>
         """
     }

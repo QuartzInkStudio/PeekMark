@@ -315,6 +315,28 @@ html, body {
   background-color: transparent;
 }
 
+/* ---------- Mermaid diagrams ---------- */
+.peekmark-mermaid {
+  background: var(--bgColor-muted);
+  border: 1px solid var(--borderColor-muted);
+  border-radius: 10px;
+  box-sizing: border-box;
+  margin: 0 0 1rem;
+  overflow: auto;
+  padding: 1rem;
+  text-align: center;
+}
+.peekmark-mermaid svg {
+  height: auto;
+  max-width: 100%;
+}
+.peekmark-mermaid-error .peekmark-mermaid {
+  color: var(--fgColor-muted);
+  font-family: var(--fontStack-monospace);
+  text-align: left;
+  white-space: pre-wrap;
+}
+
 /* ---------- highlight.js themes (inlined) ---------- */
 {{HIGHLIGHT_LIGHT_CSS}}
 
@@ -331,11 +353,43 @@ html, body {
 {{HIGHLIGHT_JS}}
 </script>
 <script nonce="{{SCRIPT_NONCE}}">
+{{MERMAID_JS}}
+</script>
+<script nonce="{{SCRIPT_NONCE}}">
 (function() {
+  function prepareMermaidBlocks() {
+    document.querySelectorAll('pre > code.language-mermaid, pre > code.language-mmd').forEach(function(code, index) {
+      var pre = code.parentElement;
+      if (!pre) { return; }
+      var diagram = document.createElement('div');
+      diagram.className = 'peekmark-mermaid mermaid';
+      diagram.textContent = code.textContent || '';
+      diagram.setAttribute('data-peekmark-mermaid-index', String(index));
+      pre.replaceWith(diagram);
+    });
+  }
+
+  function runMermaid() {
+    prepareMermaidBlocks();
+    if (typeof mermaid === 'undefined' || typeof mermaid.initialize !== 'function') { return; }
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    try {
+      mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: dark ? 'dark' : 'default' });
+      if (typeof mermaid.run === 'function') {
+        mermaid.run({ querySelector: '.peekmark-mermaid' });
+      } else if (typeof mermaid.init === 'function') {
+        mermaid.init(undefined, document.querySelectorAll('.peekmark-mermaid'));
+      }
+    } catch (e) {
+      document.documentElement.classList.add('peekmark-mermaid-error');
+    }
+  }
+
   function run() {
     if (typeof hljs !== 'undefined' && typeof hljs.highlightAll === 'function') {
       try { hljs.highlightAll(); } catch (e) { /* swallow */ }
     }
+    runMermaid();
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', run);

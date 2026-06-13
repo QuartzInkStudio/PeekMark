@@ -61,4 +61,20 @@ final class PreviewIntelligenceTests: XCTestCase {
         let url = URL(string: "peekmark-wikilink://Rendering%20Notes")
         XCTAssertEqual(MarkdownWikilinkResolver.target(from: url), "Rendering Notes")
     }
+
+    func testIncludesBundledMermaidRenderingForMermaidFences() {
+        let html = MarkdownRenderer.render(markdown: """
+        ```mermaid
+        flowchart TD
+          A[Markdown] --> B[Preview]
+        ```
+        """)
+
+        XCTAssertTrue(html.contains("language-mermaid"))
+        XCTAssertTrue(html.contains("flowchart TD"))
+        XCTAssertTrue(html.contains("peekmark-mermaid"))
+        XCTAssertTrue(html.contains("mermaid.initialize"))
+        XCTAssertFalse(html.contains("{{MERMAID_JS}}"))
+        XCTAssertFalse(html.contains("https://cdn"))
+    }
 }

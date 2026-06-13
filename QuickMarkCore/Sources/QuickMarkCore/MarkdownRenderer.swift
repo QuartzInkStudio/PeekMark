@@ -9,7 +9,7 @@ import Markdown
 /// The output document:
 /// - Begins with `<!DOCTYPE html>` (required — prevents WKWebView quirks mode).
 /// - Declares `<meta name="color-scheme" content="light dark">`.
-/// - Inlines every CSS rule and the highlight.js runtime — zero remote requests.
+/// - Inlines every CSS rule plus highlight.js and Mermaid runtimes — zero remote requests.
 /// - Wraps rendered Markdown in `<article class="markdown-body">…</article>`.
 public struct MarkdownRenderer {
 
