@@ -533,6 +533,10 @@ final class PreviewWebViewController: NSViewController, WKNavigationDelegate {
                  decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if navigationAction.navigationType == .linkActivated {
+            if Self.isLocalAnchor(navigationAction.request.url) {
+                decisionHandler(.allow)
+                return
+            }
             if UserDefaults.standard.bool(forKey: QuickMarkSettings.openPreviewLinksExternally),
                let url = navigationAction.request.url,
                Self.canOpenExternally(url) {
@@ -548,6 +552,12 @@ final class PreviewWebViewController: NSViewController, WKNavigationDelegate {
 
     private static func isAllowedPreviewURL(_ url: URL?) -> Bool {
         guard let url else { return true }
+        guard let scheme = url.scheme?.lowercased() else { return true }
+        return scheme == "file" || scheme == "about"
+    }
+
+    private static func isLocalAnchor(_ url: URL?) -> Bool {
+        guard let url, url.fragment?.isEmpty == false else { return false }
         guard let scheme = url.scheme?.lowercased() else { return true }
         return scheme == "file" || scheme == "about"
     }
