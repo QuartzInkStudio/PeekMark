@@ -45,7 +45,7 @@ closed-source Pro modules loaded behind compile-time flags and license checks.
 Requires macOS 14+, Xcode 16+.
 
 ```bash
-git clone https://github.com/charlessnow/PeekMark.git
+git clone https://github.com/QuartzInkStudio/PeekMark.git
 cd PeekMark
 open PeekMark.xcodeproj
 ```
