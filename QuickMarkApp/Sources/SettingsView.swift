@@ -27,7 +27,7 @@ private struct GeneralSettingsView: View {
                     .font(.subheadline)
             }
             Section("Pro Features") {
-                Text("Custom themes, Mermaid diagrams, and PDF export are available in PeekMark Pro.")
+                Text("Custom themes, workspace search, and PDF export are available in PeekMark Pro.")
                     .foregroundStyle(.secondary)
                     .font(.subheadline)
                 Button("Learn More…") {
