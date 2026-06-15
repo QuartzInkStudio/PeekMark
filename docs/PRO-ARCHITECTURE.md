@@ -21,9 +21,11 @@ PeekMark-pro-kit/         # private repo
   Package.swift
   Sources/QuickMarkProKit/
     ProFeatureRegistry.swift
+    Workspace/
+    Backlinks/
+    Graph/
+    Search/
     ThemeEngine/
-    MermaidRenderer/
-    MathRenderer/
     Exporters/
     Licensing/
 ```
@@ -36,6 +38,8 @@ The public repo should contain:
 
 - Community app, editor, preview, Quick Look extension.
 - Shared renderer and stable extension points.
+- Core Markdown rendering, including frontmatter, TOC, wikilinks,
+  Mermaid diagrams, and Math/LaTeX.
 - Public docs explaining that Pro modules are proprietary.
 - Optional compile-time hooks that are inert without Pro.
 
@@ -44,6 +48,7 @@ The public repo must not contain:
 - License validation secrets.
 - StoreKit/App Store Connect keys.
 - Pro feature implementation.
+- Alternative paid renderers for features already included in Community.
 - Private package URLs with embedded tokens.
 - Sparkle private keys or release credentials.
 
@@ -52,11 +57,16 @@ The public repo must not contain:
 The private `QuickMarkProKit` should contain:
 
 - Custom CSS theme engine.
-- Mermaid rendering.
-- KaTeX/LaTeX rendering.
-- PDF/DOCX export.
+- Workspace / vault navigation.
+- Backlinks, graph view, and link intelligence.
+- Advanced document search.
+- PDF/DOCX/HTML export.
 - License activation and validation.
 - Any paid-feature UI panels.
+
+Mermaid and Math/LaTeX are Community rendering features. Pro should not shadow
+or replace them; Pro should build on the shared renderer with workflow, export,
+theme, search, and vault intelligence features.
 
 ## Integration Pattern
 

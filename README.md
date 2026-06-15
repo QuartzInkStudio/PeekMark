@@ -10,7 +10,7 @@ No subscription. No Electron. Native Swift, < 5 MB.
 | Edition | License | How to get |
 |---------|---------|-----------|
 | **Community** (free) | AGPL-3.0 | Build from source or download signed binary |
-| **Pro** (paid) | Proprietary | [peekmark.app](https://peekmark.app) — $9.99 one-time |
+| **Pro** (paid) | Proprietary | Advanced workflow features, coming later |
 
 > The Community edition is fully open source. Pro modules are proprietary and
 > distributed only in official signed binaries.
@@ -20,6 +20,9 @@ No subscription. No Electron. Native Swift, < 5 MB.
 - ✅ Quick Look extension — render `.md` in Finder (Space bar)
 - ✅ GitHub-flavored Markdown (GFM)
 - ✅ Syntax highlighting (highlight.js)
+- ✅ Frontmatter, table of contents, heading anchors, and wikilinks
+- ✅ Mermaid diagrams
+- ✅ Math / LaTeX rendering
 - ✅ Auto light / dark mode
 - ✅ System font (SF Pro + SF Mono)
 - ✅ Zero remote requests — works offline
@@ -27,10 +30,12 @@ No subscription. No Electron. Native Swift, < 5 MB.
 
 ## Features (Pro)
 
-- Custom CSS themes
-- Mermaid diagram rendering
-- LaTeX / KaTeX math
-- PDF / DOCX export
+- Workspace / vault browsing
+- Backlinks, graph view, and link intelligence
+- Advanced document search
+- Custom themes and theme editor
+- PDF / DOCX / HTML export
+- Scratchpad history and quick-capture workflows
 
 Pro code is not included in this repository. Official signed binaries may include
 closed-source Pro modules loaded behind compile-time flags and license checks.
