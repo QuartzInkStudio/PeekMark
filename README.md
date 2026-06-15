@@ -28,7 +28,7 @@ No subscription. No Electron. Native Swift, < 5 MB.
 - ✅ Zero remote requests — works offline
 - ✅ Menu bar scratchpad and global hotkey
 
-## Features (Pro)
+## Planned Features (Pro)
 
 - Workspace / vault browsing
 - Backlinks, graph view, and link intelligence
