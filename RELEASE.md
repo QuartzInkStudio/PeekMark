@@ -10,7 +10,8 @@
    export APPLE_ID="you@example.com"
    export APP_PASSWORD="xxxx-xxxx-xxxx-xxxx"  # app-specific password from appleid.apple.com
    export TEAM_ID="XXXXXXXXXX"                 # 10-char team ID from developer.apple.com
-   export SPARKLE_KEY_PATH="$HOME/.sparkle/private_key"
+   export SPARKLE_KEY_PATH="$HOME/.sparkle/peekmark_ed25519_private_key"
+   export SPARKLE_SIGN_UPDATE_BIN="/opt/homebrew/Caskroom/sparkle/2.9.3/bin/sign_update"
    ```
 
 ## Cutting a Release

@@ -20,6 +20,8 @@
   <true/>
   <key>SUFeedURL</key>
   <string>https://peekmark.app/appcast.xml</string>
+  <key>SUPublicEDKey</key>
+  <string>t5oaqXDM8p3AcpbE0dZ2x0q4dCMydSj80Iu8akgnbE0=</string>
   <key>SUEnableAutomaticChecks</key>
   <true/>
   <key>CFBundleDocumentTypes</key>

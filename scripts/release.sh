@@ -16,6 +16,7 @@ ARCHIVE_PATH="$PROJECT_DIR/build/PeekMark.xcarchive"
 EXPORT_PATH="$PROJECT_DIR/build/export"
 DMG_PATH="$PROJECT_DIR/build/PeekMark-$VERSION.dmg"
 APP_PATH="$EXPORT_PATH/PeekMark.app"
+SIGN_UPDATE_BIN="${SPARKLE_SIGN_UPDATE_BIN:-sign_update}"
 
 echo "==> Building PeekMark $VERSION"
 xcodebuild \
@@ -51,7 +52,7 @@ hdiutil create \
 
 echo "==> Signing DMG for Sparkle"
 if [ -n "${SPARKLE_KEY_PATH:-}" ]; then
-  sign_update "$DMG_PATH" "$SPARKLE_KEY_PATH"
+  "$SIGN_UPDATE_BIN" --ed-key-file "$SPARKLE_KEY_PATH" "$DMG_PATH"
 else
   echo "  SPARKLE_KEY_PATH not set — skip EdDSA signature (set it for production release)"
 fi
