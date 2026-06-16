@@ -77,7 +77,7 @@ fi
 echo "==> Stapling"
 xcrun stapler staple "$APP_PATH"
 xcrun stapler validate "$APP_PATH"
-spctl --assess --type execute --verbose=4 "$APP_PATH"
+spctl --assess --type open --context context:primary-signature --verbose=4 "$APP_PATH"
 
 echo "==> Creating DMG"
 mkdir -p "$DMG_STAGE"
