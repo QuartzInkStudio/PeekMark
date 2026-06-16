@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"
+     xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>PeekMark Updates</title>
+    <link>https://peekmark.app/appcast.xml</link>
+    <description>PeekMark appcast feed</description>
+  </channel>
+</rss>
