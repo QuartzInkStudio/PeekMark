@@ -114,3 +114,14 @@ Community 1.0.1 build 2 passed notarization and Finder Quick Look verification.
 The installed Community extension rendered the Markdown heading, table, and
 local link. Its release signature includes App Sandbox and the same WebKit
 network client entitlement used by the Mac App Store extension.
+
+Direct 1.0.2 build 3 fixes Finder Quick Look registration and WebKit rendering
+with the extension entitlements verified in Community 1.0.1. Apple notarized
+the app and DMG. A replacement of the activated Direct 1.0.1 QA installation
+preserved Pro and reopened its workspace. Finder Space rendered a Markdown
+heading, table, and local link, with the process traced to the Direct 1.0.2
+extension. The live Direct appcast offers build 3 to 1.0.1 and reports no
+newer version to 1.0.2. Its enclosure signature verifies with the public key
+embedded in Direct 1.0.1. The website and checkout use the stable
+`/downloads/PeekMark-Direct.dmg` link. Deploy the versioned DMG and update the
+stable redirect and Direct feed together for future website releases.

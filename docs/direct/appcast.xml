@@ -1,8 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
     <channel>
         <title>PeekMark Direct Updates</title>
         <link>https://peekmark.app/direct/appcast.xml</link>
         <description>Updates for the PeekMark direct edition.</description>
+        <item>
+            <title>1.0.2</title>
+            <pubDate>Sat, 14 Nov 2026 20:00:26 +0800</pubDate>
+            <link>https://peekmark.app/#download</link>
+            <description>Fixes Finder Quick Look registration and rendering for the Direct edition.</description>
+            <sparkle:version>3</sparkle:version>
+            <sparkle:shortVersionString>1.0.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://peekmark.app/downloads/PeekMark-Direct-1.0.2.dmg" length="10335756" type="application/octet-stream" sparkle:edSignature="8SLQUsEsFT08tIzEF0ZXAEGQ5bLQg+5xi9a+Cr1a1hvzwlyzcZu1+sDZo58Ix9Cuuuetj9W2HqviwUOGsGHvBQ==" />
+        </item>
     </channel>
 </rss>

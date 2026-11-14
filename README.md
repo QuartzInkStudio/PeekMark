@@ -31,7 +31,7 @@ brew install --cask QuartzInkStudio/tap/peekmark
 |---------|-----------------|----------|-----------------|
 | [**Mac App Store**](https://apps.apple.com/us/app/peekmark-markdown-preview/id6791027819) | **1.0** | The simplest install and automatic updates | Pro Lifetime is an in-app purchase. Restore it with the same Apple Account. |
 | [**Signed Community DMG**](https://github.com/QuartzInkStudio/PeekMark/releases/download/v1.0.1/PeekMark-1.0.1.dmg) / Homebrew | **1.0.1** | A signed open-source distribution | Community updates are available separately from the website edition. |
-| [**Official website DMG**](https://peekmark.app/#download) | **1.0.1** | A signed, notarized installer with optional Pro | Buy Pro on the website and activate it with your Quartz license key. |
+| [**Official website DMG**](https://peekmark.app/#download) | **1.0.2** | A signed, notarized installer with optional Pro | Buy Pro on the website and activate it with your Quartz license key. |
 | **Build from source** | `main` | Inspecting, contributing, or building Community yourself | Pro source is not included. |
 
 > App Store purchases and direct Quartz licenses are separate entitlements. They
