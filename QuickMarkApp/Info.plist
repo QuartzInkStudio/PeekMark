@@ -17,17 +17,19 @@
   <key>CFBundleIdentifier</key>
   <string>app.peekmark.PeekMark</string>
   <key>CFBundleVersion</key>
-  <string>1</string>
+  <string>2</string>
   <key>CFBundleShortVersionString</key>
-  <string>1.0.0</string>
+  <string>1.0.1</string>
   <key>LSMinimumSystemVersion</key>
   <string>14.0</string>
   <key>NSPrincipalClass</key>
   <string>NSApplication</string>
   <key>NSHighResolutionCapable</key>
   <true/>
+  <key>PeekMarkDistribution</key>
+  <string>community</string>
   <key>SUFeedURL</key>
-  <string>https://peekmark.app/appcast.xml</string>
+  <string>https://peekmark.app/community/appcast.xml</string>
   <key>SUPublicEDKey</key>
   <string>t5oaqXDM8p3AcpbE0dZ2x0q4dCMydSj80Iu8akgnbE0=</string>
   <key>SUEnableAutomaticChecks</key>

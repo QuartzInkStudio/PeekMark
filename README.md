@@ -10,9 +10,9 @@
 
 <p align="center">
   <a href="https://apps.apple.com/us/app/peekmark-markdown-preview/id6791027819"><img alt="Download on the Mac App Store" src="https://img.shields.io/badge/Mac_App_Store-Download-000000?style=for-the-badge&logo=apple&logoColor=white"></a>
-  <a href="https://peekmark.quartz.ink/playground"><img alt="Try Playground" src="https://img.shields.io/badge/Try-Playground-E8B86D?style=for-the-badge"></a>
-  <a href="https://peekmark.quartz.ink/"><img alt="Website" src="https://img.shields.io/badge/Website-peekmark.quartz.ink-111111?style=for-the-badge"></a>
-  <a href="https://github.com/QuartzInkStudio/PeekMark/releases/download/v1.0.0/PeekMark-1.0.0.dmg"><img alt="Download DMG" src="https://img.shields.io/badge/Download-DMG-0A84FF?style=for-the-badge&logo=apple&logoColor=white"></a>
+  <a href="https://peekmark.app/playground/"><img alt="Try Playground" src="https://img.shields.io/badge/Try-Playground-E8B86D?style=for-the-badge"></a>
+  <a href="https://peekmark.app/"><img alt="Website" src="https://img.shields.io/badge/Website-peekmark.app-111111?style=for-the-badge"></a>
+  <a href="https://github.com/QuartzInkStudio/PeekMark/releases/download/v1.0.1/PeekMark-1.0.1.dmg"><img alt="Download DMG" src="https://img.shields.io/badge/Download-DMG-0A84FF?style=for-the-badge&logo=apple&logoColor=white"></a>
 </p>
 
 ```bash
@@ -30,7 +30,8 @@ brew install --cask QuartzInkStudio/tap/peekmark
 | Channel | Current version | Best for | Pro and updates |
 |---------|-----------------|----------|-----------------|
 | [**Mac App Store**](https://apps.apple.com/us/app/peekmark-markdown-preview/id6791027819) | **1.0** | The simplest install and automatic updates | Pro Lifetime is an in-app purchase. Restore it with the same Apple Account. |
-| [**Signed Community DMG**](https://github.com/QuartzInkStudio/PeekMark/releases/download/v1.0.0/PeekMark-1.0.0.dmg) / Homebrew | **1.0.0** | A direct, signed open-source distribution | Update the direct edition separately. Direct Pro is sold at [peekmark.quartz.ink](https://peekmark.quartz.ink/). |
+| [**Signed Community DMG**](https://github.com/QuartzInkStudio/PeekMark/releases/download/v1.0.1/PeekMark-1.0.1.dmg) / Homebrew | **1.0.1** | A signed open-source distribution | Community updates are available separately from the website edition. |
+| [**Official website DMG**](https://peekmark.app/#download) | **1.0.1** | A signed, notarized installer with optional Pro | Buy Pro on the website and activate it with your Quartz license key. |
 | **Build from source** | `main` | Inspecting, contributing, or building Community yourself | Pro source is not included. |
 
 > App Store purchases and direct Quartz licenses are separate entitlements. They

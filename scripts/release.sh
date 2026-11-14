@@ -12,9 +12,9 @@ set -euo pipefail
 
 VERSION="${1:?Usage: release.sh <version>}"
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-BUILD_DIR="$PROJECT_DIR/build/Release"
-ARCHIVE_PATH="$PROJECT_DIR/build/Archive/PeekMark.xcarchive"
-EXPORT_PATH="$PROJECT_DIR/build/Export"
+BUILD_DIR="${RELEASE_BUILD_DIR:-$PROJECT_DIR/build/releases/$VERSION}"
+ARCHIVE_PATH="$BUILD_DIR/PeekMark.xcarchive"
+EXPORT_PATH="$BUILD_DIR/Export"
 EXPORT_OPTIONS="$BUILD_DIR/ExportOptions.plist"
 APP_PATH="$BUILD_DIR/PeekMark.app"
 NOTARY_ZIP="$BUILD_DIR/PeekMark-notary.zip"
@@ -26,6 +26,8 @@ GENERATE_APPCAST_BIN="${SPARKLE_GENERATE_APPCAST_BIN:-generate_appcast}"
 DOWNLOAD_URL_PREFIX="${DOWNLOAD_URL_PREFIX:-https://github.com/QuartzInkStudio/PeekMark/releases/download/v$VERSION/}"
 PRODUCT_LINK="${PRODUCT_LINK:-https://peekmark.app/}"
 TEAM_ID="${TEAM_ID:?Set TEAM_ID}"
+COMMUNITY_FEED="$PROJECT_DIR/docs/community/appcast.xml"
+python3 "$PROJECT_DIR/scripts/verify-update-feeds.py"
 
 mkdir -p "$BUILD_DIR" "$ARCHIVES_DIR" "$EXPORT_PATH"
 rm -rf "$ARCHIVE_PATH" "$EXPORT_PATH" "$APP_PATH" "$NOTARY_ZIP" "$DMG_STAGE" "$DMG_PATH" "$EXPORT_OPTIONS"
@@ -47,6 +49,8 @@ xcodebuild \
   CODE_SIGN_STYLE=Automatic \
   -allowProvisioningUpdates \
   archive
+
+python3 "$PROJECT_DIR/scripts/verify-update-feeds.py" --app "$ARCHIVE_PATH/Products/Applications/PeekMark.app" --edition community
 
 echo "==> Exporting archive"
 xcodebuild \
@@ -77,7 +81,7 @@ fi
 echo "==> Stapling"
 xcrun stapler staple "$APP_PATH"
 xcrun stapler validate "$APP_PATH"
-spctl --assess --type open --context context:primary-signature --verbose=4 "$APP_PATH"
+spctl --assess --type execute --verbose=4 "$APP_PATH"
 
 echo "==> Creating DMG"
 mkdir -p "$DMG_STAGE"
@@ -111,16 +115,18 @@ echo "==> Signing DMG for Sparkle"
 "$SIGN_UPDATE_BIN" --ed-key-file "${SPARKLE_KEY_PATH:?Set SPARKLE_KEY_PATH}" "$DMG_PATH"
 
 echo "==> Updating appcast"
-cp "$PROJECT_DIR/docs/appcast.xml" "$ARCHIVES_DIR/appcast.xml"
+cp "$COMMUNITY_FEED" "$ARCHIVES_DIR/appcast.xml"
 "$GENERATE_APPCAST_BIN" \
   --ed-key-file "$SPARKLE_KEY_PATH" \
   --download-url-prefix "$DOWNLOAD_URL_PREFIX" \
   --link "$PRODUCT_LINK" \
   --maximum-versions 0 \
   "$ARCHIVES_DIR"
-cp "$ARCHIVES_DIR/appcast.xml" "$PROJECT_DIR/docs/appcast.xml"
+cp "$ARCHIVES_DIR/appcast.xml" "$COMMUNITY_FEED"
+
+python3 "$PROJECT_DIR/scripts/verify-update-feeds.py"
 
 echo "✅ Release complete: $DMG_PATH"
 echo "Next steps:"
 echo "  1. Upload $DMG_PATH to GitHub Release v$VERSION"
-echo "  2. Commit and push docs/appcast.xml after uploading the release asset"
+echo "  2. Commit and push docs/community/appcast.xml after uploading the release asset"
