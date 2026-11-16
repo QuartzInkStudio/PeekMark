@@ -81,8 +81,8 @@ private struct Frontmatter {
         let chips = fields.flatMap(\.chips)
         guard !chips.isEmpty else { return "" }
         return """
-        <section class="peekmark-intelligence peekmark-frontmatter" aria-label="Markdown properties">
-        <div class="peekmark-eyebrow">Markdown properties</div>
+        <section class="peekmark-intelligence peekmark-frontmatter" aria-label="\(htmlEscape(localized("Markdown properties")))">
+        <div class="peekmark-eyebrow">\(htmlEscape(localized("Markdown properties")))</div>
         <div class="peekmark-chip-grid">
         \(chips.joined(separator: "\n"))
         </div>
@@ -177,12 +177,12 @@ private struct Frontmatter {
 
         private var label: String {
             switch key {
-            case "start_date": return "Start"
-            case "end_date": return "End"
-            case "belongs_to": return "Belongs to"
-            case "related_to": return "Related to"
+            case "start_date": return localized("Start")
+            case "end_date": return localized("End")
+            case "belongs_to": return localized("Belongs to")
+            case "related_to": return localized("Related to")
             default:
-                return key.replacingOccurrences(of: "_", with: " ").capitalized
+                return localized(key.replacingOccurrences(of: "_", with: " ").capitalized)
             }
         }
     }
@@ -217,7 +217,7 @@ private enum Headings {
         }
 
         for heading in headings.reversed() {
-            let replacement = "<h\(heading.level) id=\"\(htmlEscape(heading.id))\"><a class=\"peekmark-heading-anchor\" href=\"#\(htmlEscape(heading.id))\" aria-label=\"Link to this heading\">#</a>\(heading.innerHTML)</h\(heading.level)>"
+            let replacement = "<h\(heading.level) id=\"\(htmlEscape(heading.id))\"><a class=\"peekmark-heading-anchor\" href=\"#\(htmlEscape(heading.id))\" aria-label=\"\(htmlEscape(localized("Link to this heading")))\">#</a>\(heading.innerHTML)</h\(heading.level)>"
             if let range = Range(heading.range, in: enhanced) {
                 enhanced.replaceSubrange(range, with: replacement)
             }
@@ -232,8 +232,8 @@ private enum Headings {
             "<a class=\"peekmark-toc-link peekmark-toc-level-\(heading.level)\" href=\"#\(htmlEscape(heading.id))\">\(htmlEscape(heading.text))</a>"
         }.joined(separator: "\n")
         return """
-        <nav class="peekmark-intelligence peekmark-toc" aria-label="Table of contents">
-        <div class="peekmark-eyebrow">On this page</div>
+        <nav class="peekmark-intelligence peekmark-toc" aria-label="\(htmlEscape(localized("Table of contents")))">
+        <div class="peekmark-eyebrow">\(htmlEscape(localized("On this page")))</div>
         <div class="peekmark-toc-list">
         \(items)
         </div>
@@ -275,4 +275,8 @@ private func htmlEscape(_ s: String) -> String {
         .replacingOccurrences(of: ">", with: "&gt;")
         .replacingOccurrences(of: "\"", with: "&quot;")
         .replacingOccurrences(of: "'", with: "&#39;")
+}
+
+private func localized(_ key: String) -> String {
+    NSLocalizedString(key, bundle: .module, value: key, comment: "Generated preview chrome")
 }

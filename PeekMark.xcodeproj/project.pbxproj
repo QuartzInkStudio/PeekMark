@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0380779D5DEB1C8265E8AB70 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 847FEF9BA02D5355EC8094FE /* Sparkle */; };
 		05A2E06F6EC0C5D55C8290B7 /* ReaderWindowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB790527340AEF2BC99663D6 /* ReaderWindowViewController.swift */; };
+		30DB8699D9B4E6AA952C07FF /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = C6F57D52E6117CF884192A07 /* Localizable.xcstrings */; };
 		421083AD8EE5DEDC36FFBDE7 /* PeekMarkPDFPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = E393384970D0C62B72E144E8 /* PeekMarkPDFPreview.swift */; };
 		426FFA17A3F04AD1757A3A06 /* UpdaterSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F3F68237ADB1649166420A0 /* UpdaterSetup.swift */; };
 		4551188D8385C2B65C06C744 /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99E3B7C4790DE780684B589 /* PreviewViewController.swift */; };
@@ -19,6 +20,7 @@
 		AF07C5C567E3C87C60036FC1 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5930CEE95459D0E5F893402 /* MenuBarView.swift */; };
 		B9C57D214408200C632B147D /* QuickMarkCore in Frameworks */ = {isa = PBXBuildFile; productRef = 660BB0755A7E9BABC14F4FAB /* QuickMarkCore */; };
 		C8D43A742890436E0324F6B4 /* PeekMarkAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24793A39A144EF43DB84A4C4 /* PeekMarkAppearance.swift */; };
+		CB165790EFFD28A67A0660B8 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 9923CFCC527A73B7E388EE32 /* Localizable.xcstrings */; };
 		DD2E76179793DBAB6540BC65 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC41A3D9348F906F618F5D /* SettingsView.swift */; };
 		E9AAE525A375E9BEAB260292 /* PeekMarkPDFAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = B24BA44058E75B5050495292 /* PeekMarkPDFAccess.swift */; };
 		ED8685109BE24DBA22F60F0A /* PeekMarkQL.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 497C159C6A02CEE6D4B8197E /* PeekMarkQL.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -60,12 +62,14 @@
 		497C159C6A02CEE6D4B8197E /* PeekMarkQL.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PeekMarkQL.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F3F68237ADB1649166420A0 /* UpdaterSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdaterSetup.swift; sourceTree = "<group>"; };
 		84DC41A3D9348F906F618F5D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		9923CFCC527A73B7E388EE32 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B24BA44058E75B5050495292 /* PeekMarkPDFAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeekMarkPDFAccess.swift; sourceTree = "<group>"; };
 		B99E3B7C4790DE780684B589 /* PreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViewController.swift; sourceTree = "<group>"; };
+		C6F57D52E6117CF884192A07 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		D1032F275C06D493280925DD /* MarkdownPreviewWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownPreviewWindow.swift; sourceTree = "<group>"; };
 		D5930CEE95459D0E5F893402 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		E393384970D0C62B72E144E8 /* PeekMarkPDFPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeekMarkPDFPreview.swift; sourceTree = "<group>"; };
-		F11C727FD46CC04F24B2D70C /* QuickMarkCore */ = {isa = PBXFileReference; lastKnownFileType = folder; path = QuickMarkCore; sourceTree = SOURCE_ROOT; };
+		F11C727FD46CC04F24B2D70C /* QuickMarkCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = QuickMarkCore; path = QuickMarkCore; sourceTree = SOURCE_ROOT; };
 		FB790527340AEF2BC99663D6 /* ReaderWindowViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderWindowViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -118,6 +122,7 @@
 		6DAAA7CD05C77D74B9466C2C /* QuickMarkQL */ = {
 			isa = PBXGroup;
 			children = (
+				A994539FF8247D1C989CE2B0 /* Resources */,
 				CF68381C14ACD38FFC31ABBC /* Sources */,
 			);
 			path = QuickMarkQL;
@@ -145,10 +150,27 @@
 		923303B983376C3E79B86674 /* QuickMarkApp */ = {
 			isa = PBXGroup;
 			children = (
+				B5BEF0F198A98B52BD107D31 /* Resources */,
 				668CCFF6AD3FC7CF69F9FBD3 /* Sources */,
 				43731500C5E9DD1F8557F34A /* PeekMark.icon */,
 			);
 			path = QuickMarkApp;
+			sourceTree = "<group>";
+		};
+		A994539FF8247D1C989CE2B0 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				C6F57D52E6117CF884192A07 /* Localizable.xcstrings */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		B5BEF0F198A98B52BD107D31 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				9923CFCC527A73B7E388EE32 /* Localizable.xcstrings */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		CF68381C14ACD38FFC31ABBC /* Sources */ = {
@@ -191,6 +213,7 @@
 			buildConfigurationList = 6B3E772399D9584C703B5A78 /* Build configuration list for PBXNativeTarget "PeekMarkQL" */;
 			buildPhases = (
 				FDC4B4BABEF4F2856A06CFAE /* Sources */,
+				74F7204826FFBC648B628E8B /* Resources */,
 				5F908AADDCE0D4900D4C341D /* Frameworks */,
 			);
 			buildRules = (
@@ -213,6 +236,8 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = 04D27A61D5C48930CE548C62 /* Build configuration list for PBXProject "PeekMark" */;
 			developmentRegion = en;
@@ -239,10 +264,19 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		74F7204826FFBC648B628E8B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				30DB8699D9B4E6AA952C07FF /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D8BC43C854C1D38A4E13FB25 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB165790EFFD28A67A0660B8 /* Localizable.xcstrings in Resources */,
 				4DF1B27585C0CF238388419E /* PeekMark.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

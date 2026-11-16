@@ -85,7 +85,32 @@ public protocol DocumentExporting: Sendable {
     func export(_ request: ExportRequest) async throws
 }
 
+/// Paper and margins shared by the preview and the PDF it saves.
+public struct PDFExportPreset: Codable, Hashable, Sendable {
+    public enum Paper: String, Codable, CaseIterable, Sendable {
+        case a4, usLetter
+    }
+
+    public enum Margins: String, Codable, CaseIterable, Sendable {
+        case standard, compact
+    }
+
+    public var paper: Paper
+    public var margins: Margins
+
+    public init(paper: Paper = .a4, margins: Margins = .standard) {
+        self.paper = paper
+        self.margins = margins
+    }
+}
+
 /// Renders generated, local Markdown HTML for on-screen PDF preview.
 public protocol PDFPreviewRendering: Sendable {
-    func renderPDF(html: String, sourceURL: URL?) async throws -> Data
+    func renderPDF(html: String, sourceURL: URL?, preset: PDFExportPreset) async throws -> Data
+}
+
+public extension PDFPreviewRendering {
+    func renderPDF(html: String, sourceURL: URL?) async throws -> Data {
+        try await renderPDF(html: html, sourceURL: sourceURL, preset: PDFExportPreset())
+    }
 }

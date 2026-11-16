@@ -1,21 +1,45 @@
 #if OFFICIAL_EXTENSIONS
 import AppKit
 import PDFKit
+import QuickMarkCore
 import SwiftUI
 import UniformTypeIdentifiers
 
 /// Embedded PDF preview. The original rendered bytes are retained for saving.
 struct PeekMarkPDFPreview: View {
     let title: String
-    let render: @MainActor () async throws -> Data
+    let render: @MainActor (PDFExportPreset) async throws -> Data
     let onBack: () -> Void
 
     @ObservedObject private var access = PeekMarkPDFAccess.shared
     @Environment(\.colorScheme) private var colorScheme
-    @State private var data: Data?
-    @State private var document: PDFDocument?
-    @State private var loading = true
-    @State private var error: String?
+    @AppStorage("PDFExportDefaultPreset") private var storedPreset = Data()
+    @State private var preset = PDFExportPreset()
+    @State private var initializedPreset = false
+    @State private var revision = 0
+    @State private var rendered: RenderedPDF?
+    @State private var failed: FailedRender?
+
+    private struct RenderRequest: Equatable {
+        let preset: PDFExportPreset
+        let revision: Int
+    }
+    private struct RenderedPDF {
+        let request: RenderRequest
+        let data: Data
+        let document: PDFDocument
+    }
+    private struct FailedRender {
+        let request: RenderRequest
+        let message: String
+    }
+
+    private var request: RenderRequest { RenderRequest(preset: preset, revision: revision) }
+    private var document: PDFDocument? { rendered?.request == request ? rendered?.document : nil }
+    private var error: String? { failed?.request == request ? failed?.message : nil }
+    private var rememberedPreset: PDFExportPreset {
+        (try? JSONDecoder().decode(PDFExportPreset.self, from: storedPreset)) ?? PDFExportPreset()
+    }
     @State private var page = 0
     @State private var zoom: CGFloat = 1
     @State private var fitRevision = 0
@@ -29,7 +53,7 @@ struct PeekMarkPDFPreview: View {
     @State private var savedURL: URL?
     @State private var saveError: String?
 
-    init(title: String, render: @escaping @MainActor () async throws -> Data, onBack: @escaping () -> Void) {
+    init(title: String, render: @escaping @MainActor (PDFExportPreset) async throws -> Data, onBack: @escaping () -> Void) {
         self.title = title
         self.render = render
         self.onBack = onBack
@@ -44,14 +68,23 @@ struct PeekMarkPDFPreview: View {
     private var line: Color { Color(nsColor: PeekMarkAppearance.color(.line)) }
     private var blue: Color { Color(nsColor: PeekMarkAppearance.color(.blue)) }
     private var paper: Color { Color(nsColor: PeekMarkAppearance.color(.paper)) }
+    private var saveLabel: LocalizedStringKey { access.snapshot.hasPro ? "Save PDF" : "Unlock to save PDF" }
+    private var exportDescription: LocalizedStringKey {
+        access.snapshot.hasPro ? "Your PDF is ready to save." : "Preview all pages for free.\nPeekMark Pro unlocks saving."
+    }
+    private var upgradeBackLabel: LocalizedStringKey { activationVisible ? "Back to upgrade" : "Return to preview" }
+    private var accessStatus: LocalizedStringKey { access.snapshot.isPending ? "Waiting for confirmation…" : "Please wait…" }
     private var count: Int { document?.pageCount ?? 0 }
 
     var body: some View {
+        let activeRequest = request
         ZStack {
             VStack(spacing: 0) {
                 toolbar
                 Rectangle().fill(line).frame(height: 1)
-                if loading {
+                presetBar
+                Rectangle().fill(line).frame(height: 1)
+                if document == nil && error == nil {
                     VStack(spacing: 12) { ProgressView(); Text("Preparing PDF preview…").foregroundStyle(muted) }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if let error {
@@ -59,11 +92,11 @@ struct PeekMarkPDFPreview: View {
                         Image(systemName: "exclamationmark.triangle").font(.title)
                         Text("Couldn’t prepare PDF").font(.headline)
                         Text(error).foregroundStyle(muted).multilineTextAlignment(.center)
-                        Button("Try again") { Task { await load() } }
+                        Button("Try again") { revision += 1 }
                     }.padding().frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if let document {
                     GeometryReader { geometry in
-                        // Keep the details column outside the fitted A4 page on smaller windows.
+                        // Keep the details column outside the fitted page on smaller windows.
                         let spacious = geometry.size.width >= 1180
                         HStack(spacing: 0) {
                             thumbnails(document)
@@ -111,7 +144,20 @@ struct PeekMarkPDFPreview: View {
             }
         }
         .foregroundStyle(ink)
-        .task { if document == nil && data == nil { await load() } }
+        .task(id: activeRequest) {
+            if !initializedPreset {
+                initializedPreset = true
+                access.refresh()
+                if access.snapshot.hasPro, preset != rememberedPreset {
+                    preset = rememberedPreset
+                    return
+                }
+            }
+            await load(activeRequest)
+        }
+        .onChange(of: preset) { _, _ in
+            savedURL = nil
+        }
         .alert("Couldn’t save PDF", isPresented: Binding(get: { saveError != nil }, set: { if !$0 { saveError = nil } })) {
             Button("OK", role: .cancel) {}
         } message: { Text(saveError ?? "") }
@@ -155,15 +201,52 @@ struct PeekMarkPDFPreview: View {
                     focusedControl = .returnToPreview
                 }
             } label: {
-                Label(access.snapshot.hasPro ? "Save PDF" : "Unlock to save PDF", systemImage: access.snapshot.hasPro ? "square.and.arrow.down" : "lock")
+                Label(saveLabel, systemImage: access.snapshot.hasPro ? "square.and.arrow.down" : "lock")
             }.buttonStyle(PDFPrimaryButton(height: 34)).fixedSize().disabled(document == nil)
                 .focused($focusedControl, equals: .save)
         }.font(.system(size: 13, weight: .medium)).padding(.horizontal, 26).frame(height: 62)
     }
 
+    private var presetBar: some View {
+        HStack(spacing: 16) {
+            Picker("Paper", selection: $preset.paper) {
+                ForEach(PDFExportPreset.Paper.allCases, id: \.self) { paper in
+                    Text(paper.title).tag(paper)
+                }
+            }
+            .fixedSize()
+            Picker("Margins", selection: $preset.margins) {
+                ForEach(PDFExportPreset.Margins.allCases, id: \.self) { margins in
+                    Text(margins.title).tag(margins)
+                }
+            }
+            .fixedSize()
+            Spacer(minLength: 8)
+            if access.snapshot.hasPro {
+                Button {
+                    access.refresh()
+                    guard access.snapshot.hasPro,
+                          let encoded = try? JSONEncoder().encode(preset) else { return }
+                    storedPreset = encoded
+                } label: {
+                    if preset == rememberedPreset {
+                        Text("Default preset")
+                    } else {
+                        Text("Use as default")
+                    }
+                }
+                .buttonStyle(.link)
+                .disabled(preset == rememberedPreset)
+            }
+        }
+        .font(.system(size: 13))
+        .padding(.horizontal, 26)
+        .padding(.vertical, 8)
+    }
+
     private func thumbnails(_ document: PDFDocument) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack { Text("PAGES").font(.system(size: 10, weight: .semibold)); Spacer(); Text("\(count) \(count == 1 ? "page" : "pages")").font(.system(size: 11)) }.foregroundStyle(muted)
+            HStack { Text("PAGES").font(.system(size: 10, weight: .semibold)); Spacer(); Text("\(count) pages").font(.system(size: 11)) }.foregroundStyle(muted)
             ScrollView {
                 VStack(spacing: 18) {
                     ForEach(0..<count, id: \.self) { index in
@@ -189,11 +272,11 @@ struct PeekMarkPDFPreview: View {
         VStack(alignment: .leading, spacing: 0) {
             Text("EXPORT DETAILS").font(.system(size: 10, weight: .semibold)).foregroundStyle(muted)
             Text(filename).font(Font(PeekMarkAppearance.displayFont(size: 24))).padding(.top, 16).lineLimit(2)
-            Text(access.snapshot.hasPro ? "Your PDF is ready to save." : "Preview all pages for free.\nPeekMark Pro unlocks saving.")
+            Text(exportDescription)
                 .font(.system(size: 13)).foregroundStyle(muted).padding(.top, 16)
             Rectangle().fill(line).frame(height: 1).padding(.vertical, 24)
-            HStack { Text("Paper").foregroundStyle(muted); Spacer(); Text("A4").fontWeight(.semibold) }
-            HStack { Text("Length").foregroundStyle(muted); Spacer(); Text("\(count) \(count == 1 ? "page" : "pages")").fontWeight(.semibold) }.padding(.top, 20)
+            HStack { Text("Paper").foregroundStyle(muted); Spacer(); Text(preset.paper.title).fontWeight(.semibold) }
+            HStack { Text("Length").foregroundStyle(muted); Spacer(); Text("\(count) pages").fontWeight(.semibold) }.padding(.top, 20)
             if let savedURL {
                 Label("PDF saved", systemImage: "checkmark.circle.fill").foregroundStyle(Color(nsColor: PeekMarkAppearance.color(.status))).padding(.top, 28)
                 Button("Show in Finder") { NSWorkspace.shared.activateFileViewerSelecting([savedURL]) }.buttonStyle(.link).padding(.top, 8)
@@ -232,7 +315,7 @@ struct PeekMarkPDFPreview: View {
             if access.snapshot.isBusy || access.snapshot.isPending {
                 HStack {
                     ProgressView().controlSize(.small)
-                    Text(access.snapshot.isPending ? "Waiting for confirmation…" : "Please wait…")
+                    Text(accessStatus)
                 }
                 .font(.system(size: 12)).foregroundStyle(muted).padding(.top, 12)
             }
@@ -240,7 +323,7 @@ struct PeekMarkPDFPreview: View {
                 Text(status).font(.system(size: 12)).foregroundStyle(muted).padding(.top, 10)
             }
             Button(action: goBackFromUpgrade) {
-                Label(activationVisible ? "Back to upgrade" : "Return to preview", systemImage: "arrow.left")
+                Label(upgradeBackLabel, systemImage: "arrow.left")
                     .frame(minHeight: 26)
             }
             .buttonStyle(.plain).foregroundStyle(blue).font(.system(size: 13, weight: .semibold))
@@ -248,14 +331,14 @@ struct PeekMarkPDFPreview: View {
         }.padding(36)
     }
 
-    private var upgradeTitle: String {
+    private var upgradeTitle: LocalizedStringKey {
 #if !APP_STORE
         if showActivation { return "Activate PeekMark Pro" }
 #endif
         return "Save this PDF"
     }
 
-    private var upgradeDescription: String {
+    private var upgradeDescription: LocalizedStringKey {
 #if !APP_STORE
         if showActivation { return "Paste the license key from your order confirmation." }
 #endif
@@ -320,19 +403,28 @@ struct PeekMarkPDFPreview: View {
         dismissUpgrade()
     }
 
-    @MainActor private func load() async {
-        loading = true; error = nil
+    @MainActor private func load(_ pending: RenderRequest) async {
+        guard request == pending, !Task.isCancelled else { return }
+        rendered = nil
+        failed = nil
         do {
-            let bytes = try await render()
+            let bytes = try await render(pending.preset)
+            guard request == pending, !Task.isCancelled else { return }
             guard let pdf = PDFDocument(data: bytes), pdf.pageCount > 0 else { throw PDFPreviewError.invalidDocument }
-            data = bytes; document = pdf; page = 0
-        } catch { self.error = error.localizedDescription }
-        loading = false
+            page = 0
+            zoom = 1
+            fitRevision += 1
+            rendered = RenderedPDF(request: pending, data: bytes, document: pdf)
+        } catch {
+            guard request == pending, !Task.isCancelled else { return }
+            failed = FailedRender(request: pending, message: error.localizedDescription)
+        }
     }
 
     @MainActor private func save() {
         access.refresh()
-        guard access.snapshot.hasPro, let data else { showUpgrade = true; return }
+        guard access.snapshot.hasPro else { showUpgrade = true; return }
+        guard let rendered, rendered.request == request else { return }
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.pdf]
         panel.nameFieldStringValue = filename
@@ -341,7 +433,11 @@ struct PeekMarkPDFPreview: View {
             Task { @MainActor in
                 access.refresh()
                 guard access.snapshot.hasPro else { showUpgrade = true; return }
-                do { try data.write(to: url, options: .atomic); savedURL = url }
+                // The panel saves the exact bytes of the preview from which it was opened.
+                do {
+                    try rendered.data.write(to: url, options: .atomic)
+                    if rendered.request == request { savedURL = url }
+                }
                 catch { self.saveError = error.localizedDescription }
             }
         }
@@ -353,9 +449,27 @@ struct PeekMarkPDFPreview: View {
     }
 }
 
+private extension PDFExportPreset.Paper {
+    var title: LocalizedStringKey {
+        switch self {
+        case .a4: "A4"
+        case .usLetter: "US Letter"
+        }
+    }
+}
+
+private extension PDFExportPreset.Margins {
+    var title: LocalizedStringKey {
+        switch self {
+        case .standard: "Standard"
+        case .compact: "Compact"
+        }
+    }
+}
+
 private enum PDFPreviewError: LocalizedError {
     case invalidDocument
-    var errorDescription: String? { "The generated PDF could not be opened." }
+    var errorDescription: String? { String(localized: "The generated PDF could not be opened.") }
 }
 
 private struct PDFPrimaryButton: ButtonStyle {

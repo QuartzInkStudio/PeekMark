@@ -21,8 +21,8 @@ final class MarkdownPreviewWindowController: NSObject {
         guard !show(url: url, reportFailure: false) else { return }
 
         let panel = NSOpenPanel()
-        panel.title = "Allow Access to Linked Markdown File"
-        panel.message = "Choose \(url.lastPathComponent) to open this link."
+        panel.title = String(localized: "Allow Access to Linked Markdown File")
+        panel.message = String(localized: "Choose \(url.lastPathComponent) to open this link.")
         panel.allowedContentTypes = QuickMarkMarkdownFiles.extensions.compactMap { .init(filenameExtension: $0) }
         panel.allowsMultipleSelection = false
         panel.canChooseFiles = true
@@ -92,7 +92,7 @@ final class MarkdownPreviewWindowController: NSObject {
         let (window, splitVC) = createWindow()
         let url = scratchpadURL()
         let markdown = (try? String(contentsOf: url, encoding: .utf8)) ?? ""
-        window.title = "Scratchpad"
+        window.title = String(localized: "Scratchpad")
         splitVC.load(markdown: markdown, url: url)
         scratchpadWindow = window
         (window.contentViewController as? ReaderWindowViewController)?.changeMode(.split)
@@ -104,7 +104,7 @@ final class MarkdownPreviewWindowController: NSObject {
 
     func openMarkdownDocument(closing welcomeWindow: NSWindow? = nil) {
         let panel = NSOpenPanel()
-        panel.title = "Open Markdown File"
+        panel.title = String(localized: "Open Markdown File")
         panel.allowedContentTypes = QuickMarkMarkdownFiles.extensions.compactMap { .init(filenameExtension: $0) }
         panel.allowsMultipleSelection = false
         panel.canChooseFiles = true
@@ -159,10 +159,10 @@ final class MarkdownPreviewWindowController: NSObject {
     }
 
     private func flashNewDocumentTitle(_ window: NSWindow) {
-        window.title = "New Document"
+        window.title = String(localized: "New Document")
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
             guard self?.windows.contains(where: { $0 === window }) == true else { return }
-            window.title = "Untitled"
+            window.title = String(localized: "Untitled")
         }
     }
 
@@ -175,7 +175,7 @@ final class MarkdownPreviewWindowController: NSObject {
 
     private func showOpenError(_ error: Error, for url: URL) {
         let alert = NSAlert(error: error)
-        alert.messageText = "Unable to Open Markdown File"
+        alert.messageText = String(localized: "Unable to Open Markdown File")
         alert.informativeText = url.path
         alert.runModal()
     }
@@ -284,7 +284,7 @@ final class SplitPreviewViewController: NSSplitViewController {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(html, forType: .html)
         NSPasteboard.general.setString(html, forType: .string)
-        flashTitle("✓ HTML Copied")
+        flashTitle(String(localized: "✓ HTML Copied"))
     }
 
     func exportDocument(using exporter: any DocumentExporting) {
@@ -326,11 +326,11 @@ final class SplitPreviewViewController: NSSplitViewController {
                         context: context,
                         destinationURL: destinationURL
                     ))
-                    flashTitle("✓ Exported")
+                    flashTitle(String(localized: "✓ Exported"))
                     NSWorkspace.shared.activateFileViewerSelecting([destinationURL])
                 } catch {
                     let alert = NSAlert(error: error)
-                    alert.messageText = "Unable to Export Document"
+                    alert.messageText = String(localized: "Unable to Export Document")
                     if let hostWindow = window ?? NSApp.keyWindow {
                         alert.beginSheetModal(for: hostWindow) { _ in }
                     } else {
@@ -504,7 +504,7 @@ final class EditorViewController: NSViewController {
         textView.textColor = PeekMarkAppearance.color(.ink)
         textView.backgroundColor = PeekMarkAppearance.color(.rail)
         textView.insertionPointColor = PeekMarkAppearance.color(.blue)
-        textView.setAccessibilityLabel("Markdown source")
+        textView.setAccessibilityLabel(String(localized: "Markdown source"))
         textView.isAutomaticSpellingCorrectionEnabled = false
         textView.isAutomaticQuoteSubstitutionEnabled = false
         textView.isAutomaticDashSubstitutionEnabled = false
@@ -524,7 +524,7 @@ final class EditorViewController: NSViewController {
 
         scrollView.documentView = textView
         let container = NSView()
-        let header = SplitPaneHeader(title: "SOURCE", background: .rail, leading: 22)
+        let header = SplitPaneHeader(title: String(localized: "SOURCE"), background: .rail, leading: 22)
         header.translatesAutoresizingMaskIntoConstraints = false
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(header)
@@ -582,10 +582,10 @@ final class EditorViewController: NSViewController {
 
     func showFindPanel() {
         let alert = NSAlert()
-        alert.messageText = "Find in Source"
-        alert.informativeText = "Enter text to find in the Markdown source."
-        alert.addButton(withTitle: "Find")
-        alert.addButton(withTitle: "Cancel")
+        alert.messageText = String(localized: "Find in Source")
+        alert.informativeText = String(localized: "Enter text to find in the Markdown source.")
+        alert.addButton(withTitle: String(localized: "Find"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
 
         let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 260, height: 24))
         alert.accessoryView = field
@@ -616,7 +616,7 @@ final class EditorViewController: NSViewController {
             try textView.string.write(to: url, atomically: true, encoding: .utf8)
             if let win = view.window {
                 let original = win.title
-                win.title = "✓ Saved"
+                win.title = String(localized: "✓ Saved")
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                     win.title = original
                 }
@@ -670,10 +670,10 @@ final class PreviewWebViewController: NSViewController, WKNavigationDelegate {
         config.websiteDataStore = .nonPersistent()
         webView = WKWebView(frame: .zero, configuration: config)
         webView.underPageBackgroundColor = PeekMarkAppearance.color(.paper)
-        webView.setAccessibilityLabel("Rendered Markdown")
+        webView.setAccessibilityLabel(String(localized: "Rendered Markdown"))
         webView.navigationDelegate = self
         let container = NSView()
-        let header = SplitPaneHeader(title: "PREVIEW", background: .paper, leading: 36)
+        let header = SplitPaneHeader(title: String(localized: "PREVIEW"), background: .paper, leading: 36)
         header.translatesAutoresizingMaskIntoConstraints = false
         webView.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(header)
@@ -745,11 +745,11 @@ final class PreviewWebViewController: NSViewController, WKNavigationDelegate {
     func showFindPanel() {
         guard let window = view.window else { return }
         let alert = NSAlert()
-        alert.messageText = "Find in Markdown"
-        alert.addButton(withTitle: "Find")
-        alert.addButton(withTitle: "Cancel")
+        alert.messageText = String(localized: "Find in Markdown")
+        alert.addButton(withTitle: String(localized: "Find"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
         let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 280, height: 26))
-        field.placeholderString = "Find text"
+        field.placeholderString = String(localized: "Find text")
         alert.accessoryView = field
         alert.window.initialFirstResponder = field
         alert.beginSheetModal(for: window) { [weak self] result in

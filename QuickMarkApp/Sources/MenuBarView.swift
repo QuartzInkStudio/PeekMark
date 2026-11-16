@@ -66,7 +66,7 @@ struct MenuBarView: View {
         (ScratchpadHotKeyOption(rawValue: selectedHotKey) ?? .commandShiftM).label
     }
 
-    private var hotKeyStatusText: String {
+    private var hotKeyStatusText: LocalizedStringKey {
         if !hotKeyEnabled { return "Scratchpad Hotkey: Off" }
         if registrationStatus == "unavailable" { return "Scratchpad Hotkey: Unavailable" }
         return "Scratchpad Hotkey: \(hotKeyLabel)"

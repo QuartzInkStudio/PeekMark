@@ -7,6 +7,7 @@ class PreviewViewController: NSViewController, QLPreviewingController {
 
     private var webView: WKWebView!
     private var currentDirectory: URL?
+    private static let resources = Bundle(for: PreviewViewController.self)
 
     override func loadView() {
         let config = WKWebViewConfiguration()
@@ -16,19 +17,25 @@ class PreviewViewController: NSViewController, QLPreviewingController {
         config.preferences = prefs
         webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = self
+        webView.setAccessibilityLabel(String(localized: "Rendered Markdown", bundle: Self.resources))
         view = webView
     }
 
     func preparePreviewOfFile(at url: URL) async throws {
-        let markdown: String
-        do {
-            markdown = try String(contentsOf: url, encoding: .utf8)
-        } catch {
-            markdown = "_Could not read file: \(url.lastPathComponent)_"
-        }
-
         let title = url.deletingPathExtension().lastPathComponent
-        let html = MarkdownRenderer.render(markdown: markdown, title: title)
+        let html: String
+        do {
+            let markdown = try String(contentsOf: url, encoding: .utf8)
+            html = MarkdownRenderer.render(markdown: markdown, title: title)
+        } catch {
+            let filename = url.lastPathComponent
+            let message = String(localized: "Could not read file: \(filename)", bundle: Self.resources)
+            let language = Self.resources.preferredLocalizations.first ?? "en"
+            html = HTMLTemplate.build(
+                bodyHTML: "<p lang=\"\(Self.escapeHTML(language))\"><em>\(Self.escapeHTML(message))</em></p>",
+                title: title
+            )
+        }
         let directory = url.deletingLastPathComponent()
 
         // baseURL is the file's directory so relative image paths resolve
@@ -36,6 +43,12 @@ class PreviewViewController: NSViewController, QLPreviewingController {
             currentDirectory = directory
             webView.loadHTMLString(html, baseURL: directory)
         }
+    }
+    private static func escapeHTML(_ text: String) -> String {
+        text.replacingOccurrences(of: "&", with: "&amp;")
+            .replacingOccurrences(of: "<", with: "&lt;")
+            .replacingOccurrences(of: ">", with: "&gt;")
+            .replacingOccurrences(of: "\"", with: "&quot;")
     }
 }
 

@@ -30,6 +30,8 @@ targets:
     sources:
       - path: QuickMarkApp/Sources
         createIntermediateGroups: true
+      - path: QuickMarkApp/Resources/Localizable.xcstrings
+        buildPhase: resources
       - path: QuickMarkApp/PeekMark.icon
     dependencies:
       - package: QuickMarkCore
@@ -52,6 +54,7 @@ targets:
           PROVISIONING_PROFILE_SPECIFIER: ""
         Release:
           CODE_SIGN_STYLE: Automatic
+          DEVELOPMENT_TEAM: M924X3MR87
           CODE_SIGN_ENTITLEMENTS: QuickMarkApp/QuickMarkApp.entitlements
   PeekMarkQL:
     type: app-extension
@@ -60,6 +63,8 @@ targets:
     sources:
       - path: QuickMarkQL/Sources
         createIntermediateGroups: true
+      - path: QuickMarkQL/Resources/Localizable.xcstrings
+        buildPhase: resources
     dependencies:
       - package: QuickMarkCore
         product: QuickMarkCore
@@ -76,4 +81,5 @@ targets:
           PROVISIONING_PROFILE_SPECIFIER: ""
         Release:
           CODE_SIGN_STYLE: Automatic
+          DEVELOPMENT_TEAM: M924X3MR87
           CODE_SIGN_ENTITLEMENTS: QuickMarkQL/QuickMarkQL.entitlements

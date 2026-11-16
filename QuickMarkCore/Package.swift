@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "QuickMarkCore",
+    defaultLocalization: "en",
     platforms: [.macOS(.v14)],
     products: [
         .library(name: "QuickMarkCore", targets: ["QuickMarkCore"]),

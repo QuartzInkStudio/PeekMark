@@ -15,6 +15,17 @@ private enum SettingsPane: String, CaseIterable, Identifiable {
     case about = "About"
 
     var id: String { rawValue }
+    var title: LocalizedStringKey {
+        switch self {
+        case .general: "General"
+        case .scratchpad: "Scratchpad"
+        case .preview: "Preview"
+#if OFFICIAL_EXTENSIONS
+        case .pro: "Pro"
+#endif
+        case .about: "About"
+        }
+    }
     var number: String {
         switch self {
         case .general: return "01"
@@ -30,11 +41,11 @@ private enum SettingsPane: String, CaseIterable, Identifiable {
     }
 }
 
-private var settingsEdition: String {
+private var settingsEdition: LocalizedStringKey {
 #if APP_STORE
     return "MAC APP STORE"
 #elseif OFFICIAL_EXTENSIONS
-    return "DIRECT"
+    return "DIRECT EDITION"
 #else
     return "COMMUNITY"
 #endif
@@ -83,7 +94,7 @@ struct SettingsView: View {
                 Button {
                     selection = pane
                 } label: {
-                    Text(pane.rawValue)
+                    Text(pane.title)
                         .font(.system(size: 14))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 20)
@@ -106,8 +117,8 @@ struct SettingsView: View {
 
 private struct SettingsHeading: View {
     let number: String
-    let title: String
-    let subtitle: String
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -131,7 +142,7 @@ struct SettingsRule: View {
 }
 
 private struct SettingsSectionLabel: View {
-    let title: String
+    let title: LocalizedStringKey
     var body: some View {
         Text(title)
             .font(.system(size: 10, design: .monospaced))
@@ -234,7 +245,7 @@ private struct ScratchpadSettingsView: View {
         }
     }
 
-    private var statusText: String {
+    private var statusText: LocalizedStringKey {
         if !hotKeyEnabled { return "Off" }
         if registrationStatus == "unavailable" { return "Unavailable" }
         return "Registered"
@@ -275,7 +286,7 @@ private struct ProSettingsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             SettingsHeading(number: number, title: "PeekMark Pro", subtitle: "More ways to make Markdown your own.")
-            SettingsSectionLabel(title: settingsEdition == "DIRECT" ? "DIRECT EDITION" : settingsEdition).padding(.top, 27)
+            SettingsSectionLabel(title: settingsEdition).padding(.top, 27)
             OfficialOptionalFeaturesSettingsView()
                 .padding(.top, 18)
         }
@@ -307,18 +318,18 @@ private struct AboutView: View {
     private var versionDescription: String {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
 #if APP_STORE
-        return "Version \(version) · Mac App Store"
+        return String(localized: "Version \(version) · Mac App Store")
 #elseif OFFICIAL_EXTENSIONS
-        return "Version \(version) · Direct"
+        return String(localized: "Version \(version) · Direct")
 #else
-        return "Version \(version) · Community"
+        return String(localized: "Version \(version) · Community")
 #endif
     }
     private var feedbackURL: URL {
         var components = URLComponents()
         components.scheme = "mailto"
         components.path = "hello@quartz.ink"
-        components.queryItems = [URLQueryItem(name: "subject", value: "PeekMark Feedback — \(versionDescription)")]
+        components.queryItems = [URLQueryItem(name: "subject", value: String(localized: "PeekMark Feedback — \(versionDescription)"))]
         return components.url ?? URL(string: "mailto:hello@quartz.ink")!
     }
 }

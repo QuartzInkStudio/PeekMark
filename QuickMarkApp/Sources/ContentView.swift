@@ -54,6 +54,16 @@ private func mono(_ size: CGFloat) -> Font {
 }
 
 struct ContentView: View {
+    private var welcomeTitle: LocalizedStringKey { showingHelp ? "Quick Look help" : "PeekMark" }
+    private var welcomeEyebrow: LocalizedStringKey {
+        if showingHelp { return "PEEKMARK   /   HELP" }
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.2"
+        return "PEEKMARK   /   \(version)"
+    }
+    private var welcomeHeadline: LocalizedStringKey {
+        showingHelp ? "Let’s get the\npreview working." : "Markdown,\nright in Finder."
+    }
+
     @ObservedObject private var navigation = PeekMarkWelcomeNavigation.shared
     @State private var showingHelp: Bool = {
         #if DEBUG
@@ -66,7 +76,7 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text(showingHelp ? "Quick Look help" : "PeekMark")
+            Text(welcomeTitle)
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(pmColor(.ink))
                 .frame(maxWidth: .infinity)
@@ -100,7 +110,7 @@ struct ContentView: View {
         }
         .ignoresSafeArea(.container, edges: .top)
         .background(pmColor(.shell))
-        .navigationTitle(showingHelp ? "Quick Look help" : "PeekMark")
+        .navigationTitle(welcomeTitle)
         .onChange(of: navigation.helpRequested, initial: true) { _, requested in
             guard requested else { return }
             showingHelp = true
@@ -115,10 +125,10 @@ struct ContentView: View {
 
     private var introduction: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(showingHelp ? "PEEKMARK   /   HELP" : "PEEKMARK   /   1.1")
+            Text(welcomeEyebrow)
                 .font(mono(12)).foregroundStyle(pmColor(.blue))
                 .padding(.top, 7)
-            Text(showingHelp ? "Let’s get the\npreview working." : "Markdown,\nright in Finder.")
+            Text(welcomeHeadline)
                 .font(display(showingHelp ? 60 : 62))
                 .lineSpacing(-4)
                 .foregroundStyle(pmColor(.ink))
@@ -194,12 +204,13 @@ struct ContentView: View {
 }
 
 private struct HelpPanel: View {
+    private let sampleName = "Release notes.md"
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("QUICK LOOK CHECK").font(mono(11)).foregroundStyle(pmColor(.blue))
             Text("A few things to try").font(display(34)).foregroundStyle(pmColor(.ink)).padding(.top, 19)
             Rectangle().fill(pmColor(.line)).frame(height: 1).padding(.top, 20)
-            step("01", "Select the sample in Finder", "Choose Release notes.md and press Space.", key: true)
+            step("01", "Select the sample in Finder", "Choose \(sampleName) and press Space.", key: true)
             divider
             step("02", "Check Quick Look extensions", "In System Settings, search for Extensions.\nMake sure PeekMark is enabled for Quick Look.")
             divider
@@ -218,7 +229,7 @@ private struct HelpPanel: View {
         .background(pmColor(.paper), in: RoundedRectangle(cornerRadius: 10))
     }
     private var divider: some View { Rectangle().fill(pmColor(.line)).frame(height: 1).padding(.leading, 57) }
-    private func step(_ number: String, _ title: String, _ detail: String, key: Bool = false) -> some View {
+    private func step(_ number: String, _ title: LocalizedStringKey, _ detail: LocalizedStringKey, key: Bool = false) -> some View {
         HStack(alignment: .top, spacing: 28) {
             Text(number).font(mono(13)).foregroundStyle(pmColor(.blue)).frame(width: 29, alignment: .leading)
             VStack(alignment: .leading, spacing: 9) {
@@ -250,7 +261,7 @@ private struct DemoPanel: View {
             RoundedRectangle(cornerRadius: 12).fill(pmColor(.rail))
             VStack(alignment: .leading, spacing: 14) {
                 Text("FINDER QUICK LOOK").font(mono(11)).foregroundStyle(pmColor(.blue))
-                Text("Release notes.md").font(display(24)).foregroundStyle(pmColor(.ink))
+                Text(verbatim: "Release notes.md").font(display(24)).foregroundStyle(pmColor(.ink))
             }.offset(x: 36, y: 30)
             finder.offset(x: 36, y: 117)
             paper.offset(x: 311, y: 167)
@@ -263,7 +274,7 @@ private struct DemoPanel: View {
         VStack(alignment: .leading, spacing: 0) {
             ZStack {
                 pmColor(.rail)
-                Text("Samples").font(.system(size: 13, weight: .semibold)).foregroundStyle(pmColor(.ink))
+                Text(verbatim: "Samples").font(.system(size: 13, weight: .semibold)).foregroundStyle(pmColor(.ink))
                 HStack(spacing: 6) {
                     ForEach([Color(red: 1, green: 0.37, blue: 0.34), Color(red: 1, green: 0.74, blue: 0.18), Color(red: 0.16, green: 0.78, blue: 0.25)], id: \.self) { color in Circle().fill(color).frame(width: 9, height: 9) }
                     Spacer()
@@ -296,7 +307,7 @@ private struct DemoPanel: View {
     private var paper: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("PEEKMARK  /  PRODUCT NOTES").font(mono(10)).foregroundStyle(pmColor(.blue))
-            Text("Release notes").font(display(37)).foregroundStyle(pmColor(.ink)).padding(.top, 21)
+            Text(verbatim: "Release notes").font(display(37)).foregroundStyle(pmColor(.ink)).padding(.top, 21)
             Rectangle().fill(pmColor(.line)).frame(height: 1).padding(.top, 45)
             Text("What changed").font(.system(size: 14, weight: .semibold)).foregroundStyle(pmColor(.ink)).padding(.top, 22)
             Text("A clearer path from draft to delivery.").font(.system(size: 13)).foregroundStyle(pmColor(.ink)).padding(.top, 15)

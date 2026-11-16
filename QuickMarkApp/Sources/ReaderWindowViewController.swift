@@ -13,11 +13,19 @@ enum ReaderMode: String, CaseIterable {
     case read = "Read"
     case split = "Split"
     case source = "Source"
+
+    var title: LocalizedStringKey {
+        switch self {
+        case .read: "Read"
+        case .split: "Split"
+        case .source: "Source"
+        }
+    }
 }
 
 @MainActor
 private final class ReaderControls: ObservableObject {
-    @Published var filename = "Untitled"
+    @Published var filename = String(localized: "Untitled")
     @Published var mode = ReaderMode.read
     @Published var headings: [ReaderHeading] = []
     @Published var selectedHeading: String?
@@ -106,7 +114,7 @@ final class ReaderWindowViewController: NSViewController {
         }
         split.onDocumentURLChange = { [weak self] url in
             guard let self else { return }
-            controls.filename = url?.lastPathComponent ?? "Untitled"
+            controls.filename = url?.lastPathComponent ?? String(localized: "Untitled")
             controls.fileIsLocal = url != nil
             self.view.window?.representedURL = url
         }
@@ -155,7 +163,7 @@ final class ReaderWindowViewController: NSViewController {
         let title = controls.filename
         let sourceURL = split.documentURL
         let markdown = split.markdown
-        let preview = PeekMarkPDFPreview(title: title, render: {
+        let preview = PeekMarkPDFPreview(title: title, render: { preset in
             let context = RenderContext(sourceURL: sourceURL, title: title, purpose: .pdfExport)
             let css = try await QuickMarkExtensionRegistry.customizationProviders.first?.customization(for: context) ?? .none
             let html = MarkdownRenderer.render(
@@ -163,7 +171,7 @@ final class ReaderWindowViewController: NSViewController {
                 customization: PeekMarkTypography.pdfCustomization(combining: css),
                 sourceURL: sourceURL
             )
-            return try await renderer.renderPDF(html: html, sourceURL: sourceURL)
+            return try await renderer.renderPDF(html: html, sourceURL: sourceURL, preset: preset)
         }, onBack: { [weak self] in self?.closePDFPreview() })
         let host = NSHostingView(rootView: preview)
         host.safeAreaRegions = []
@@ -234,7 +242,7 @@ private struct ReaderToolbar: View {
                 }
                 HStack(spacing: 2) {
                     ForEach(ReaderMode.allCases, id: \.self) { mode in
-                        Button(mode.rawValue) { changeMode(mode) }
+                        Button(mode.title) { changeMode(mode) }
                             .buttonStyle(ReaderModeButton(selected: mode == controls.mode))
                             .accessibilityAddTraits(mode == controls.mode ? [.isSelected] : [])
                     }
@@ -284,6 +292,11 @@ private struct ReaderExportButton: ButtonStyle {
 }
 
 private struct ReaderOutline: View {
+    private var fileStatus: LocalizedStringKey {
+        controls.fileIsLocal ? "Local file" : "Unsaved document"
+    }
+
+
     @ObservedObject var controls: ReaderControls
     let pick: (ReaderHeading) -> Void
     let close: () -> Void
@@ -321,7 +334,7 @@ private struct ReaderOutline: View {
             }
             VStack(alignment: .leading, spacing: 10) {
                 Divider().overlay(readerColor(.line))
-                Label(controls.fileIsLocal ? "Local file" : "Unsaved document", systemImage: "internaldrive").font(.system(size: 13))
+                Label(fileStatus, systemImage: "internaldrive").font(.system(size: 13))
                 Text("Markdown document").font(.system(size: 12)).foregroundStyle(readerColor(.muted)).padding(.leading, 26)
             }.padding(.horizontal, 10)
         }
