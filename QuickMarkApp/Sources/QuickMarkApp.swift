@@ -18,13 +18,12 @@ struct QuickMarkApp: App {
 
     var body: some Scene {
         // Main window (shown on first launch or from menu bar "Open PeekMark")
-        WindowGroup {
+        WindowGroup("PeekMark", id: "welcome") {
             ContentView()
         }
-        .windowStyle(.titleBar)
-        .windowToolbarStyle(.unified)
-        .windowResizability(.contentSize)
-        .defaultSize(width: 480, height: 300)
+        .windowStyle(.hiddenTitleBar)
+        .windowResizability(.contentMinSize)
+        .defaultSize(width: 1280, height: 800)
         .commands {
             QuickMarkFileCommands()
 #if OFFICIAL_EXTENSIONS
@@ -38,7 +37,7 @@ struct QuickMarkApp: App {
                 .keyboardShortcut("c", modifiers: [.command, .shift])
             }
             CommandGroup(after: .textEditing) {
-                Button("Find in Source…") {
+                Button("Find…") {
                     activeSplitPreviewViewController()?.findInSource(nil)
                 }
                 .keyboardShortcut("f")
@@ -67,7 +66,7 @@ struct QuickMarkSaveCommands: Commands {
 
     private var exporters: [any DocumentExporting] {
         _ = runtimeState.revision
-        return QuickMarkExtensionRegistry.exporters
+        return QuickMarkExtensionRegistry.exporters.filter { $0.format.filenameExtension.lowercased() != "pdf" }
     }
 
     var body: some Commands {
@@ -77,6 +76,12 @@ struct QuickMarkSaveCommands: Commands {
             }
             .keyboardShortcut("s")
 
+#if OFFICIAL_EXTENSIONS
+            Divider()
+            Button("Export PDF…") {
+                (NSApp.keyWindow?.contentViewController as? ReaderWindowViewController)?.showPDFPreview()
+            }
+#endif
             if !exporters.isEmpty {
                 Divider()
                 Menu("Export") {
@@ -95,6 +100,22 @@ struct QuickMarkSaveCommands: Commands {
 final class QuickMarkAppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         ScratchpadHotKeyManager.shared.start()
+#if DEBUG
+        let environment = ProcessInfo.processInfo.environment
+        if environment["PEEKMARK_QA_APPEARANCE"] == "light" { NSApp.appearance = NSAppearance(named: .aqua) }
+        if environment["PEEKMARK_QA_APPEARANCE"] == "dark" { NSApp.appearance = NSAppearance(named: .darkAqua) }
+        if let screen = environment["PEEKMARK_QA_SCREEN"],
+           ["read", "split", "pdf"].contains(screen),
+           let url = try? PeekMarkSample.sampleURL() {
+            DispatchQueue.main.async {
+                MarkdownPreviewWindowController.shared.show(url: url)
+                if let reader = NSApp.keyWindow?.contentViewController as? ReaderWindowViewController {
+                    if screen == "split" { reader.changeMode(.split) }
+                    if screen == "pdf" { reader.showPDFPreview() }
+                }
+            }
+        }
+#endif
     }
 
     func applicationShouldOpenUntitledFile(_ sender: NSApplication) -> Bool {
@@ -271,7 +292,7 @@ final class ScratchpadHotKeyManager {
 }
 
 private func activeSplitPreviewViewController() -> SplitPreviewViewController? {
-    NSApp.keyWindow?.contentViewController as? SplitPreviewViewController
+    (NSApp.keyWindow?.contentViewController as? ReaderWindowViewController)?.split
 }
 
 struct QuickMarkFileCommands: Commands {

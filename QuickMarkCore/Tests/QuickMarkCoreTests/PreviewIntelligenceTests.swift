@@ -138,4 +138,33 @@ final class PreviewIntelligenceTests: XCTestCase {
         XCTAssertFalse(html.localizedCaseInsensitiveContains("</style><script>alert(1)</script>"))
         XCTAssertTrue(html.contains("<\\/style>"))
     }
+
+    func testEmbedsLocalImagesWithoutEmbeddingParentOrRemoteFiles() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let notes = directory.appendingPathComponent("notes")
+        try FileManager.default.createDirectory(at: notes, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let inside = Data([1, 2, 3, 4])
+        let outside = Data([5, 6, 7, 8])
+        try inside.write(to: notes.appendingPathComponent("local picture.png"))
+        try outside.write(to: directory.appendingPathComponent("outside.png"))
+        try FileManager.default.createSymbolicLink(
+            at: notes.appendingPathComponent("alias.png"),
+            withDestinationURL: directory.appendingPathComponent("outside.png")
+        )
+
+        let html = MarkdownRenderer.render(
+            markdown: """
+            ![local](local%20picture.png)
+            ![parent](../outside.png)
+            ![alias](alias.png)
+            ![remote](https://example.invalid/remote.png)
+            """,
+            sourceURL: notes.appendingPathComponent("note.md")
+        )
+        XCTAssertTrue(html.contains("src=\"data:image/png;base64,\(inside.base64EncodedString())\""))
+        XCTAssertFalse(html.contains("data:image/png;base64,\(outside.base64EncodedString())"))
+        XCTAssertTrue(html.contains("src=\"https://example.invalid/remote.png\""))
+    }
 }

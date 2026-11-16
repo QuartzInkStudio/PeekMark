@@ -23,6 +23,12 @@ public enum QuickMarkExtensionRegistry {
     public static let runtimeState = QuickMarkExtensionRuntimeState()
     public private(set) static var customizationProviders: [any RenderCustomizationProviding] = []
     public private(set) static var exporters: [any DocumentExporting] = []
+    public private(set) static var pdfPreviewRenderer: (any PDFPreviewRendering)?
+
+    public static func installPDFPreviewRenderer(_ renderer: any PDFPreviewRendering) {
+        pdfPreviewRenderer = renderer
+        runtimeState.notifyChange()
+    }
 
     public static func install(
         customizationProviders: [any RenderCustomizationProviding],
@@ -42,6 +48,7 @@ public enum QuickMarkExtensionRegistry {
     public static func reset() {
         customizationProviders = []
         exporters = []
+        pdfPreviewRenderer = nil
         runtimeState.notifyChange()
     }
 }

@@ -84,3 +84,8 @@ public protocol DocumentExporting: Sendable {
     var format: ExportFormat { get }
     func export(_ request: ExportRequest) async throws
 }
+
+/// Renders generated, local Markdown HTML for on-screen PDF preview.
+public protocol PDFPreviewRendering: Sendable {
+    func renderPDF(html: String, sourceURL: URL?) async throws -> Data
+}

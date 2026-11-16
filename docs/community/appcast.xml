@@ -5,6 +5,15 @@
         <link>https://peekmark.app/community/appcast.xml</link>
         <description>Updates for the PeekMark community edition.</description>
         <item>
+            <title>1.1</title>
+            <pubDate>Mon, 16 Nov 2026 12:16:36 +0800</pubDate>
+            <link>https://peekmark.app/</link>
+            <sparkle:version>110107</sparkle:version>
+            <sparkle:shortVersionString>1.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/QuartzInkStudio/PeekMark/releases/download/v1.1/PeekMark-1.1.dmg" length="11299258" type="application/octet-stream" sparkle:edSignature="T0FsvUgfYaGDuB6fl1BNtFJIRzZf1dmIOe40JfjiwLLCAwR0IMN4iMelXVf+SVdWrP7UpxaB3c9Tj+W1kA/hDg=="/>
+        </item>
+        <item>
             <title>1.0.1</title>
             <pubDate>Sat, 14 Nov 2026 19:40:55 +0800</pubDate>
             <link>https://peekmark.app/</link>

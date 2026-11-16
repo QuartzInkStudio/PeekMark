@@ -6,6 +6,7 @@ import UniformTypeIdentifiers
 /// A floating split-view window:
 ///   Left  → editable NSTextView with raw Markdown source
 ///   Right → WKWebView live preview (updates on every keystroke)
+@MainActor
 final class MarkdownPreviewWindowController: NSObject {
     static let shared = MarkdownPreviewWindowController()
 
@@ -74,7 +75,9 @@ final class MarkdownPreviewWindowController: NSObject {
         let (window, splitVC) = createWindow()
         flashNewDocumentTitle(window)
         splitVC.loadNew()
+        (window.contentViewController as? ReaderWindowViewController)?.changeMode(.split)
         window.makeKeyAndOrderFront(nil)
+        splitVC.focusEditor()
         positionWindowForFirstOpen(window)
         NSApp.activate(ignoringOtherApps: true)
     }
@@ -92,7 +95,9 @@ final class MarkdownPreviewWindowController: NSObject {
         window.title = "Scratchpad"
         splitVC.load(markdown: markdown, url: url)
         scratchpadWindow = window
+        (window.contentViewController as? ReaderWindowViewController)?.changeMode(.split)
         window.makeKeyAndOrderFront(nil)
+        splitVC.focusEditor()
         positionWindowForFirstOpen(window)
         NSApp.activate(ignoringOtherApps: true)
     }
@@ -112,27 +117,25 @@ final class MarkdownPreviewWindowController: NSObject {
     }
 
     private func createWindow() -> (NSWindow, SplitPreviewViewController) {
-        let vc = SplitPreviewViewController()
-
+        let reader = ReaderWindowViewController()
         let win = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 1200, height: 800),
-            styleMask: [.titled, .closable, .resizable, .miniaturizable],
+            contentRect: NSRect(x: 0, y: 0, width: 1280, height: 800),
+            styleMask: [.titled, .closable, .resizable, .miniaturizable, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
         win.title = "PeekMark"
-        win.contentViewController = vc
+        win.titleVisibility = .hidden
+        win.titlebarAppearsTransparent = true
+        win.isMovableByWindowBackground = true
+        win.contentViewController = reader
+        win.minSize = NSSize(width: 720, height: 480)
         win.center()
         win.isReleasedWhenClosed = false
         win.delegate = self
 
-        let toolbar = NSToolbar(identifier: "QuickMarkToolbar")
-        toolbar.delegate = vc
-        toolbar.displayMode = .iconAndLabel
-        win.toolbar = toolbar
-
         windows.append(win)
-        return (win, vc)
+        return (win, reader.split)
     }
 
     private func positionWindowForFirstOpen(_ window: NSWindow) {
@@ -142,8 +145,13 @@ final class MarkdownPreviewWindowController: NSObject {
             return
         }
 
-        let width = min(1280, visibleFrame.width * 0.82)
-        let height = min(860, visibleFrame.height * 0.84)
+        #if DEBUG
+        let compact = ProcessInfo.processInfo.environment["PEEKMARK_QA_SCREEN"] == "split"
+        #else
+        let compact = false
+        #endif
+        let width = min(compact ? 960 : 1280, visibleFrame.width - 24)
+        let height = min(compact ? 700 : 800, visibleFrame.height - 24)
         let x = visibleFrame.midX - width / 2
         let y = visibleFrame.midY - height / 2
 
@@ -160,6 +168,7 @@ final class MarkdownPreviewWindowController: NSObject {
 
     private func load(markdown: String, url: URL, in window: NSWindow, splitVC: SplitPreviewViewController) {
         window.title = url.deletingPathExtension().lastPathComponent
+        window.representedURL = url
         splitVC.load(markdown: markdown, url: url)
         RecentMarkdownStore.shared.add(url)
     }
@@ -188,40 +197,18 @@ extension MarkdownPreviewWindowController: NSWindowDelegate {
 
 // MARK: - Split View Controller
 
-final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate {
-    private let editorItem = NSSplitViewItem(viewController: EditorViewController())
-    private let previewItem = NSSplitViewItem(viewController: PreviewWebViewController())
+final class SplitPreviewViewController: NSSplitViewController {
+    private let editorVC = EditorViewController()
+    private let previewVC = PreviewWebViewController()
+    private lazy var editorItem = NSSplitViewItem(viewController: editorVC)
+    private lazy var previewItem = NSSplitViewItem(viewController: previewVC)
+    private var mode = ReaderMode.read
+    private var sourceFraction = 0.40
 
-    private var editorVC: EditorViewController { editorItem.viewController as! EditorViewController }
-    private var previewVC: PreviewWebViewController { previewItem.viewController as! PreviewWebViewController }
-
-    private enum ViewMode {
-        case both, editorOnly, previewOnly
-        mutating func toggle() {
-            switch self {
-            case .both:        self = .editorOnly
-            case .editorOnly:  self = .previewOnly
-            case .previewOnly: self = .both
-            }
-        }
-        var label: String {
-            switch self {
-            case .both:        return "Split"
-            case .editorOnly:  return "Source"
-            case .previewOnly: return "Preview"
-            }
-        }
-        var icon: String {
-            switch self {
-            case .both:        return "rectangle.split.2x1"
-            case .editorOnly:  return "doc.text"
-            case .previewOnly: return "eye"
-            }
-        }
-    }
-
-    private var viewMode: ViewMode = .both
-    private weak var toggleButtonRef: NSButton?
+    var onHeadingsChange: (([ReaderHeading]) -> Void)?
+    var onDocumentURLChange: ((URL?) -> Void)?
+    var markdown: String { editorVC.markdownText }
+    var documentURL: URL? { editorVC.documentURL }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -229,45 +216,62 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
         splitView.wantsLayer = true
         splitView.isVertical = true
         splitView.dividerStyle = .thin
+        editorItem.minimumThickness = 235
+        previewItem.minimumThickness = 290
         addSplitViewItem(editorItem)
         addSplitViewItem(previewItem)
+        editorItem.isCollapsed = true
 
         editorVC.onTextChange = { [weak self] markdown in
             self?.previewVC.render(markdown: markdown)
         }
-
-        DispatchQueue.main.async { [weak self] in
+        editorVC.onURLChange = { [weak self] url in
             guard let self else { return }
-            let w = self.splitView.bounds.width
-            if w > 0 {
-                self.splitView.setPosition(w * 0.40, ofDividerAt: 0)
-            }
+            previewVC.sourceURL = url
+            previewVC.baseURL = url?.deletingLastPathComponent()
+            previewVC.render(markdown: editorVC.markdownText)
+            onDocumentURLChange?(url)
         }
+        previewVC.onHeadingsChange = { [weak self] in self?.onHeadingsChange?($0) }
     }
 
     func load(markdown: String, url: URL) {
+        _ = view
         editorVC.setText(markdown)
-        previewVC.sourceURL = url
-        previewVC.baseURL = url.deletingLastPathComponent()
-        previewVC.render(markdown: markdown, baseURL: url.deletingLastPathComponent())
         editorVC.setCurrentURL(url)
     }
 
     func loadNew() {
+        _ = view
         editorVC.setText("")
         editorVC.setCurrentURL(nil)
-        previewVC.sourceURL = nil
-        previewVC.baseURL = nil
-        previewVC.render(markdown: "")
-        viewMode = .both
-        editorItem.isCollapsed = false
-        previewItem.isCollapsed = false
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            let w = self.splitView.bounds.width
-            if w > 0 { self.splitView.setPosition(w * 0.40, ofDividerAt: 0) }
+    }
+
+    func setMode(_ next: ReaderMode, moveFocus: Bool) {
+        _ = view
+        if mode == .split && splitView.bounds.width > 1 && !editorItem.isCollapsed {
+            sourceFraction = editorVC.view.bounds.width / splitView.bounds.width
+        }
+        mode = next
+        editorVC.setSplitPresentation(next == .split)
+        previewVC.setSplitPresentation(next == .split)
+        editorItem.isCollapsed = next == .read
+        previewItem.isCollapsed = next == .source
+        if next == .split {
+            splitView.layoutSubtreeIfNeeded()
+            let width = splitView.bounds.width
+            if width > 525 {
+                splitView.setPosition(min(width - 290, max(235, width * sourceFraction)), ofDividerAt: 0)
+            }
+        }
+        if moveFocus {
+            if next == .read { previewVC.focus() } else { editorVC.focus() }
         }
     }
+
+    func focusEditor() { editorVC.focus() }
+    func jumpToHeading(_ id: String) { previewVC.jumpToHeading(id) }
+    func setPreviewZoom(_ value: Int) { previewVC.setZoom(value) }
 
     private var window: NSWindow? { view.window }
 
@@ -343,11 +347,7 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
     }
 
     @objc func findInSource(_ sender: Any?) {
-        editorVC.showFindPanel()
-    }
-
-    @objc func newDocument(_ sender: Any?) {
-        MarkdownPreviewWindowController.shared.showNewDocument()
+        if mode == .read { previewVC.showFindPanel() } else { editorVC.showFindPanel() }
     }
 
     private func flashTitle(_ title: String) {
@@ -358,130 +358,125 @@ final class SplitPreviewViewController: NSSplitViewController, NSToolbarDelegate
             window?.title = original
         }
     }
-
-    @objc func toggleViewMode(_ sender: Any?) {
-        viewMode.toggle()
-        let w = splitView.bounds.width
-
-        editorItem.isCollapsed  = false
-        previewItem.isCollapsed = false
-        splitView.layoutSubtreeIfNeeded()
-
-        NSAnimationContext.beginGrouping()
-        NSAnimationContext.current.duration = 0.3
-        NSAnimationContext.current.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        switch viewMode {
-        case .both:        splitView.animator().setPosition(w * 0.40, ofDividerAt: 0)
-        case .editorOnly:  splitView.animator().setPosition(w - 2,    ofDividerAt: 0)
-        case .previewOnly: splitView.animator().setPosition(2,         ofDividerAt: 0)
-        }
-        NSAnimationContext.endGrouping()
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.33) { [weak self] in
-            guard let self else { return }
-            switch self.viewMode {
-            case .both:       break
-            case .editorOnly: self.previewItem.isCollapsed = true
-            case .previewOnly: self.editorItem.isCollapsed  = true
-            }
-            let cfg = NSImage.SymbolConfiguration(pointSize: 15, weight: .medium)
-            self.toggleButtonRef?.image = NSImage(
-                systemSymbolName: self.viewMode.icon,
-                accessibilityDescription: self.viewMode.label
-            )?.withSymbolConfiguration(cfg)
-        }
-    }
-
-    // MARK: NSToolbarDelegate
-
-    private static let toolbarButtonSize = NSSize(width: 72, height: 28)
-
-    func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [NSToolbarItem.Identifier("new"), NSToolbarItem.Identifier("save"), NSToolbarItem.Identifier("copyHTML"), NSToolbarItem.Identifier("toggle")]
-    }
-
-    func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [NSToolbarItem.Identifier("new"), NSToolbarItem.Identifier("save"), NSToolbarItem.Identifier("copyHTML"), NSToolbarItem.Identifier("toggle"), .space]
-    }
-
-    func toolbar(_ toolbar: NSToolbar,
-                 itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier,
-                 willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
-        switch itemIdentifier.rawValue {
-        case "new":
-            return toolbarButton(
-                identifier: itemIdentifier,
-                label: "New",
-                toolTip: "New document (⌘N)",
-                systemImageName: "doc.badge.plus",
-                action: #selector(newDocument(_:))
-            )
-        case "save":
-            return toolbarButton(
-                identifier: itemIdentifier,
-                label: "Save",
-                toolTip: "Save file (⌘S)",
-                systemImageName: "square.and.arrow.down",
-                action: #selector(saveCurrentFile(_:))
-            )
-        case "copyHTML":
-            return toolbarButton(
-                identifier: itemIdentifier,
-                label: "Copy HTML",
-                toolTip: "Copy rendered HTML",
-                systemImageName: "doc.on.doc",
-                action: #selector(copyHTML(_:))
-            )
-        case "toggle":
-            let item = toolbarButton(
-                identifier: itemIdentifier,
-                label: "View",
-                toolTip: "Toggle view (Split / Source / Preview)",
-                systemImageName: viewMode.icon,
-                action: #selector(toggleViewMode(_:))
-            )
-            toggleButtonRef = item.view as? NSButton
-            return item
-        default:
-            return nil
-        }
-    }
-
-    private func toolbarButton(
-        identifier: NSToolbarItem.Identifier,
-        label: String,
-        toolTip: String,
-        systemImageName: String,
-        action: Selector
-    ) -> NSToolbarItem {
-        let item = NSToolbarItem(itemIdentifier: identifier)
-        item.label = label
-        item.paletteLabel = label
-        item.toolTip = toolTip
-
-        let cfg = NSImage.SymbolConfiguration(pointSize: 15, weight: .medium)
-        let image = NSImage(systemSymbolName: systemImageName, accessibilityDescription: label)?
-            .withSymbolConfiguration(cfg) ?? NSImage()
-        let button = NSButton(image: image, target: self, action: action)
-        button.bezelStyle = .texturedRounded
-        button.isBordered = false
-        button.frame = NSRect(origin: .zero, size: Self.toolbarButtonSize)
-        button.imagePosition = .imageOnly
-        button.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            button.widthAnchor.constraint(equalToConstant: Self.toolbarButtonSize.width),
-            button.heightAnchor.constraint(equalToConstant: Self.toolbarButtonSize.height)
-        ])
-
-        item.view = button
-        return item
-    }
 }
 
 // MARK: - Editor (left pane)
 
+/// Draw outside AppKit's editable text rect. The clip view drives gutter scroll.
+private final class SourceLineGutter: NSView {
+    weak var scrollView: NSScrollView?
+    weak var textView: NSTextView?
+    private var scrollObservation: NSObjectProtocol?
+
+    init(scrollView: NSScrollView, textView: NSTextView) {
+        self.scrollView = scrollView
+        self.textView = textView
+        super.init(frame: .zero)
+        setAccessibilityElement(false)
+        scrollView.contentView.postsBoundsChangedNotifications = true
+        scrollObservation = NotificationCenter.default.addObserver(
+            forName: NSView.boundsDidChangeNotification, object: scrollView.contentView, queue: .main
+        ) { [weak self] _ in self?.needsDisplay = true }
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    deinit {
+        if let scrollObservation { NotificationCenter.default.removeObserver(scrollObservation) }
+    }
+
+    override var isFlipped: Bool { true }
+    override func hitTest(_ point: NSPoint) -> NSView? { nil }
+
+    override func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance()
+        needsDisplay = true
+    }
+
+    override func draw(_ dirtyRect: NSRect) {
+        guard let textView, let scrollView,
+              let layoutManager = textView.layoutManager, let textContainer = textView.textContainer else { return }
+        let source = textView.string as NSString
+        let viewport = scrollView.documentVisibleRect
+        let origin = textView.textContainerOrigin
+        let visible = viewport.offsetBy(dx: -origin.x, dy: -origin.y)
+        let glyphRange = layoutManager.glyphRange(forBoundingRect: visible, in: textContainer)
+        let firstCharacter = glyphRange.location < layoutManager.numberOfGlyphs
+            ? min(source.length, layoutManager.characterIndexForGlyph(at: glyphRange.location))
+            : source.length
+        var lineStart = 0
+        var lineNumber = 1
+        while lineStart < firstCharacter {
+            let range = source.lineRange(for: NSRange(location: lineStart, length: 0))
+            guard NSMaxRange(range) <= firstCharacter, NSMaxRange(range) > lineStart else { break }
+            lineStart = NSMaxRange(range)
+            lineNumber += 1
+        }
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: PeekMarkAppearance.monoFont(size: 11),
+            .foregroundColor: PeekMarkAppearance.color(.muted)
+        ]
+        while lineStart <= source.length {
+            let rect: NSRect
+            if lineStart == source.length {
+                guard source.length == 0 || source.character(at: source.length - 1) == 10 || source.character(at: source.length - 1) == 13 else { break }
+                rect = layoutManager.extraLineFragmentRect
+            } else {
+                let glyph = layoutManager.glyphIndexForCharacter(at: lineStart)
+                rect = layoutManager.lineFragmentRect(forGlyphAt: glyph, effectiveRange: nil)
+            }
+            let y = rect.minY + origin.y - viewport.minY
+            if y > bounds.maxY { break }
+            if y + rect.height >= bounds.minY {
+                let label = "\(lineNumber)" as NSString
+                let width = label.size(withAttributes: attributes).width
+                label.draw(at: NSPoint(x: 35 - width, y: y + 1), withAttributes: attributes)
+            }
+            guard lineStart < source.length else { break }
+            let next = NSMaxRange(source.lineRange(for: NSRange(location: lineStart, length: 0)))
+            guard next > lineStart else { break }
+            lineStart = next
+            lineNumber += 1
+        }
+    }
+}
+
+private final class SplitPaneHeader: NSView {
+    private let title: String
+    private let background: PeekMarkAppearance.Role
+    private let leading: CGFloat
+
+    init(title: String, background: PeekMarkAppearance.Role, leading: CGFloat) {
+        self.title = title
+        self.background = background
+        self.leading = leading
+        super.init(frame: .zero)
+        wantsLayer = true
+        layer?.masksToBounds = true
+        setAccessibilityElement(false)
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    override var isFlipped: Bool { true }
+
+    override func draw(_ dirtyRect: NSRect) {
+        PeekMarkAppearance.color(background).setFill()
+        bounds.fill()
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: PeekMarkAppearance.monoFont(size: 11),
+            .foregroundColor: PeekMarkAppearance.color(.muted),
+            .kern: 1.0
+        ]
+        (title as NSString).draw(at: NSPoint(x: leading, y: 22), withAttributes: attributes)
+        PeekMarkAppearance.color(.line).setFill()
+        NSRect(x: 0, y: bounds.height - 1, width: bounds.width, height: 1).fill()
+    }
+}
+
 final class EditorViewController: NSViewController {
     var onTextChange: ((String) -> Void)?
+    var onURLChange: ((URL?) -> Void)?
     var markdownText: String { textView.string }
     var documentURL: URL? { currentURL }
 
@@ -489,6 +484,8 @@ final class EditorViewController: NSViewController {
     private var securityScopedURL: URL?
     private var scrollView: NSScrollView!
     private var textView: NSTextView!
+    private var gutter: SourceLineGutter!
+    private var headerHeight: NSLayoutConstraint!
 
     deinit {
         securityScopedURL?.stopAccessingSecurityScopedResource()
@@ -500,14 +497,25 @@ final class EditorViewController: NSViewController {
         scrollView.hasHorizontalScroller = false
         scrollView.autohidesScrollers = true
 
-        textView = NSTextView()
+        textView = NSTextView(usingTextLayoutManager: false)
         textView.isEditable = true
         textView.isRichText = false
-        textView.font = NSFont.monospacedSystemFont(ofSize: 14, weight: .regular)
+        textView.font = PeekMarkAppearance.monoFont(size: 13)
+        textView.textColor = PeekMarkAppearance.color(.ink)
+        textView.backgroundColor = PeekMarkAppearance.color(.rail)
+        textView.insertionPointColor = PeekMarkAppearance.color(.blue)
+        textView.setAccessibilityLabel("Markdown source")
         textView.isAutomaticSpellingCorrectionEnabled = false
         textView.isAutomaticQuoteSubstitutionEnabled = false
         textView.isAutomaticDashSubstitutionEnabled = false
-        textView.textContainerInset = NSSize(width: 12, height: 12)
+        textView.textContainerInset = NSSize(width: 22, height: 23)
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.lineSpacing = 5
+        textView.defaultParagraphStyle = paragraph
+        textView.typingAttributes[.paragraphStyle] = paragraph
+        textView.isHorizontallyResizable = false
+        textView.autoresizingMask = [.width]
+        textView.textContainer?.widthTracksTextView = true
         textView.delegate = self
         textView.allowsUndo = true
 
@@ -515,24 +523,62 @@ final class EditorViewController: NSViewController {
         textView.drawsBackground = true
 
         scrollView.documentView = textView
-        view = scrollView
-        view.frame = .zero
+        let container = NSView()
+        let header = SplitPaneHeader(title: "SOURCE", background: .rail, leading: 22)
+        header.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(header)
+        container.addSubview(scrollView)
+        gutter = SourceLineGutter(scrollView: scrollView, textView: textView)
+        gutter.isHidden = true
+        gutter.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(gutter)
+        NSLayoutConstraint.activate([
+            gutter.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            gutter.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            gutter.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            gutter.widthAnchor.constraint(equalToConstant: 43)
+        ])
+        headerHeight = header.heightAnchor.constraint(equalToConstant: 0)
+        NSLayoutConstraint.activate([
+            header.topAnchor.constraint(equalTo: container.topAnchor),
+            header.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            header.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            headerHeight,
+            scrollView.topAnchor.constraint(equalTo: header.bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+        ])
+        view = container
     }
 
     func setText(_ markdown: String) {
         textView.string = markdown
+        gutter.needsDisplay = true
+        if let paragraph = textView.defaultParagraphStyle {
+            textView.textStorage?.addAttribute(.paragraphStyle, value: paragraph,
+                                              range: NSRange(location: 0, length: textView.textStorage?.length ?? 0))
+        }
+    }
+
+    func setSplitPresentation(_ enabled: Bool) {
+        _ = view
+        headerHeight.constant = enabled ? 57 : 0
+        gutter.isHidden = !enabled
+        gutter.needsDisplay = true
+        textView.textContainerInset = NSSize(width: enabled ? 51 : 22, height: 23)
     }
 
     func setCurrentURL(_ url: URL?) {
         securityScopedURL?.stopAccessingSecurityScopedResource()
         securityScopedURL = nil
         currentURL = url
-
-        guard let url else { return }
-        if url.startAccessingSecurityScopedResource() {
-            securityScopedURL = url
-        }
+        if let url, url.startAccessingSecurityScopedResource() { securityScopedURL = url }
+        onURLChange?(url)
     }
+
+    func focus() { view.window?.makeFirstResponder(textView) }
 
     func showFindPanel() {
         let alert = NSAlert()
@@ -587,9 +633,9 @@ final class EditorViewController: NSViewController {
         panel.nameFieldStringValue = "Untitled.md"
         panel.begin { [weak self] response in
             guard response == .OK, let url = panel.url, let self else { return }
-            self.setCurrentURL(url)
             do {
                 try self.textView.string.write(to: url, atomically: true, encoding: .utf8)
+                self.setCurrentURL(url)
                 RecentMarkdownStore.shared.add(url)
             } catch {
                 let alert = NSAlert(error: error)
@@ -601,6 +647,7 @@ final class EditorViewController: NSViewController {
 
 extension EditorViewController: NSTextViewDelegate {
     func textDidChange(_ notification: Notification) {
+        gutter.needsDisplay = true
         onTextChange?(textView.string)
     }
 }
@@ -610,15 +657,44 @@ extension EditorViewController: NSTextViewDelegate {
 final class PreviewWebViewController: NSViewController, WKNavigationDelegate {
     var baseURL: URL?
     var sourceURL: URL?
+    var onHeadingsChange: (([ReaderHeading]) -> Void)?
     private var webView: WKWebView!
     private var renderTask: Task<Void, Never>?
+    private var currentNavigation: WKNavigation?
+    private var headerHeight: NSLayoutConstraint!
+
+    deinit { renderTask?.cancel() }
 
     override func loadView() {
         let config = WKWebViewConfiguration()
+        config.websiteDataStore = .nonPersistent()
         webView = WKWebView(frame: .zero, configuration: config)
+        webView.underPageBackgroundColor = PeekMarkAppearance.color(.paper)
+        webView.setAccessibilityLabel("Rendered Markdown")
         webView.navigationDelegate = self
-        view = webView
-        view.frame = .zero
+        let container = NSView()
+        let header = SplitPaneHeader(title: "PREVIEW", background: .paper, leading: 36)
+        header.translatesAutoresizingMaskIntoConstraints = false
+        webView.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(header)
+        container.addSubview(webView)
+        headerHeight = header.heightAnchor.constraint(equalToConstant: 0)
+        NSLayoutConstraint.activate([
+            header.topAnchor.constraint(equalTo: container.topAnchor),
+            header.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            header.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            headerHeight,
+            webView.topAnchor.constraint(equalTo: header.bottomAnchor),
+            webView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            webView.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+        ])
+        view = container
+    }
+
+    func setSplitPresentation(_ enabled: Bool) {
+        _ = view
+        headerHeight.constant = enabled ? 57 : 0
     }
 
     func render(markdown: String, baseURL: URL? = nil) {
@@ -650,9 +726,52 @@ final class PreviewWebViewController: NSViewController, WKNavigationDelegate {
             let html = MarkdownRenderer.render(
                 markdown: markdown,
                 title: context.title,
-                customization: customization
+                customization: PeekMarkTypography.readerCustomization(combining: customization),
+                sourceURL: context.sourceURL
             )
-            webView.loadHTMLString(html, baseURL: resolvedBase)
+            currentNavigation = webView.loadHTMLString(html, baseURL: resolvedBase)
+        }
+    }
+
+    func focus() { view.window?.makeFirstResponder(webView) }
+
+    func setZoom(_ percent: Int) { webView.pageZoom = Double(percent) / 100 }
+
+    func jumpToHeading(_ id: String) {
+        webView.callAsyncJavaScript("document.getElementById(anchor)?.scrollIntoView({block: 'start'});",
+                                    arguments: ["anchor": id], in: nil, in: .page, completionHandler: nil)
+    }
+
+    func showFindPanel() {
+        guard let window = view.window else { return }
+        let alert = NSAlert()
+        alert.messageText = "Find in Markdown"
+        alert.addButton(withTitle: "Find")
+        alert.addButton(withTitle: "Cancel")
+        let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 280, height: 26))
+        field.placeholderString = "Find text"
+        alert.accessoryView = field
+        alert.window.initialFirstResponder = field
+        alert.beginSheetModal(for: window) { [weak self] result in
+            guard result == .alertFirstButtonReturn, !field.stringValue.isEmpty else { return }
+            let configuration = WKFindConfiguration()
+            configuration.wraps = true
+            self?.webView.find(field.stringValue, configuration: configuration) { result in
+                if !result.matchFound { NSSound.beep() }
+            }
+        }
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        guard navigation === currentNavigation else { return }
+        webView.evaluateJavaScript("""
+            JSON.stringify(Array.from(document.querySelectorAll('article :is(h1,h2,h3,h4,h5,h6)[id]'))
+              .filter((node,index) => node.tagName !== 'H1' || index !== 0)
+              .map(node => ({id:node.id,title:(() => {const copy=node.cloneNode(true);copy.querySelectorAll('.peekmark-heading-anchor').forEach(link=>link.remove());return copy.textContent.trim();})(),level:Number(node.tagName[1])})))
+            """) { [weak self] value, _ in
+            guard let self, navigation === currentNavigation, let json = value as? String,
+                  let headings = try? JSONDecoder().decode([ReaderHeading].self, from: Data(json.utf8)) else { return }
+            onHeadingsChange?(headings.filter { !$0.title.isEmpty })
         }
     }
 

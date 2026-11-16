@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		0380779D5DEB1C8265E8AB70 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 847FEF9BA02D5355EC8094FE /* Sparkle */; };
+		05A2E06F6EC0C5D55C8290B7 /* ReaderWindowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB790527340AEF2BC99663D6 /* ReaderWindowViewController.swift */; };
+		421083AD8EE5DEDC36FFBDE7 /* PeekMarkPDFPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = E393384970D0C62B72E144E8 /* PeekMarkPDFPreview.swift */; };
 		426FFA17A3F04AD1757A3A06 /* UpdaterSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F3F68237ADB1649166420A0 /* UpdaterSetup.swift */; };
 		4551188D8385C2B65C06C744 /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99E3B7C4790DE780684B589 /* PreviewViewController.swift */; };
 		4DF1B27585C0CF238388419E /* PeekMark.icon in Resources */ = {isa = PBXBuildFile; fileRef = 43731500C5E9DD1F8557F34A /* PeekMark.icon */; };
@@ -16,7 +18,9 @@
 		A94541A1B106C6DDE59CE91D /* MarkdownPreviewWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1032F275C06D493280925DD /* MarkdownPreviewWindow.swift */; };
 		AF07C5C567E3C87C60036FC1 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5930CEE95459D0E5F893402 /* MenuBarView.swift */; };
 		B9C57D214408200C632B147D /* QuickMarkCore in Frameworks */ = {isa = PBXBuildFile; productRef = 660BB0755A7E9BABC14F4FAB /* QuickMarkCore */; };
+		C8D43A742890436E0324F6B4 /* PeekMarkAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24793A39A144EF43DB84A4C4 /* PeekMarkAppearance.swift */; };
 		DD2E76179793DBAB6540BC65 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC41A3D9348F906F618F5D /* SettingsView.swift */; };
+		E9AAE525A375E9BEAB260292 /* PeekMarkPDFAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = B24BA44058E75B5050495292 /* PeekMarkPDFAccess.swift */; };
 		ED8685109BE24DBA22F60F0A /* PeekMarkQL.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 497C159C6A02CEE6D4B8197E /* PeekMarkQL.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F063CC3C1CE30235EADC06D0 /* QuickMarkCore in Frameworks */ = {isa = PBXBuildFile; productRef = E0C90372628D96BAEC6B9806 /* QuickMarkCore */; };
 		FD0DD237570C5FE332329EC2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04D3550E25AE64D4F21B7BA3 /* ContentView.swift */; };
@@ -50,15 +54,19 @@
 		04D3550E25AE64D4F21B7BA3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1A7586801FBC1E18B46CE2C3 /* QuickMarkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickMarkApp.swift; sourceTree = "<group>"; };
 		204900AB29E8EB080F34344E /* QuickMarkQLExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickMarkQLExtension.swift; sourceTree = "<group>"; };
+		24793A39A144EF43DB84A4C4 /* PeekMarkAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeekMarkAppearance.swift; sourceTree = "<group>"; };
 		2B914935358C770585AC12DB /* PeekMark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PeekMark.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		43731500C5E9DD1F8557F34A /* PeekMark.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = PeekMark.icon; sourceTree = "<group>"; };
 		497C159C6A02CEE6D4B8197E /* PeekMarkQL.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PeekMarkQL.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F3F68237ADB1649166420A0 /* UpdaterSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdaterSetup.swift; sourceTree = "<group>"; };
 		84DC41A3D9348F906F618F5D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B24BA44058E75B5050495292 /* PeekMarkPDFAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeekMarkPDFAccess.swift; sourceTree = "<group>"; };
 		B99E3B7C4790DE780684B589 /* PreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViewController.swift; sourceTree = "<group>"; };
 		D1032F275C06D493280925DD /* MarkdownPreviewWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownPreviewWindow.swift; sourceTree = "<group>"; };
 		D5930CEE95459D0E5F893402 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		E393384970D0C62B72E144E8 /* PeekMarkPDFPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeekMarkPDFPreview.swift; sourceTree = "<group>"; };
 		F11C727FD46CC04F24B2D70C /* QuickMarkCore */ = {isa = PBXFileReference; lastKnownFileType = folder; path = QuickMarkCore; sourceTree = SOURCE_ROOT; };
+		FB790527340AEF2BC99663D6 /* ReaderWindowViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderWindowViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,7 +104,11 @@
 				04D3550E25AE64D4F21B7BA3 /* ContentView.swift */,
 				D1032F275C06D493280925DD /* MarkdownPreviewWindow.swift */,
 				D5930CEE95459D0E5F893402 /* MenuBarView.swift */,
+				24793A39A144EF43DB84A4C4 /* PeekMarkAppearance.swift */,
+				B24BA44058E75B5050495292 /* PeekMarkPDFAccess.swift */,
+				E393384970D0C62B72E144E8 /* PeekMarkPDFPreview.swift */,
 				1A7586801FBC1E18B46CE2C3 /* QuickMarkApp.swift */,
+				FB790527340AEF2BC99663D6 /* ReaderWindowViewController.swift */,
 				84DC41A3D9348F906F618F5D /* SettingsView.swift */,
 				5F3F68237ADB1649166420A0 /* UpdaterSetup.swift */,
 			);
@@ -245,7 +257,11 @@
 				FD0DD237570C5FE332329EC2 /* ContentView.swift in Sources */,
 				A94541A1B106C6DDE59CE91D /* MarkdownPreviewWindow.swift in Sources */,
 				AF07C5C567E3C87C60036FC1 /* MenuBarView.swift in Sources */,
+				C8D43A742890436E0324F6B4 /* PeekMarkAppearance.swift in Sources */,
+				E9AAE525A375E9BEAB260292 /* PeekMarkPDFAccess.swift in Sources */,
+				421083AD8EE5DEDC36FFBDE7 /* PeekMarkPDFPreview.swift in Sources */,
 				95DFEE4F2E95AE924007CF86 /* QuickMarkApp.swift in Sources */,
+				05A2E06F6EC0C5D55C8290B7 /* ReaderWindowViewController.swift in Sources */,
 				DD2E76179793DBAB6540BC65 /* SettingsView.swift in Sources */,
 				426FFA17A3F04AD1757A3A06 /* UpdaterSetup.swift in Sources */,
 			);

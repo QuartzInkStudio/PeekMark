@@ -23,12 +23,16 @@ public struct MarkdownRenderer {
     public static func render(
         markdown: String,
         title: String = "Preview",
-        customization: RenderCustomization = .none
+        customization: RenderCustomization = .none,
+        sourceURL: URL? = nil
     ) -> String {
         let intelligence = PreviewIntelligence(markdown: markdown)
         let document = Document(parsing: intelligence.markdownBody)
         let bodyHTML = intelligence.enhance(bodyHTML: HTMLFormatter.format(document))
-        return HTMLTemplate.build(bodyHTML: bodyHTML, title: title, customization: customization)
+        return HTMLTemplate.build(
+            bodyHTML: LocalMarkdownImages.inline(in: bodyHTML, sourceURL: sourceURL),
+            title: title, customization: customization
+        )
     }
 
     /// Instance variant of ``render(markdown:title:)`` for callers that prefer
