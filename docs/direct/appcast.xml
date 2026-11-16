@@ -1,9 +1,28 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
     <channel>
         <title>PeekMark Direct Updates</title>
         <link>https://peekmark.app/direct/appcast.xml</link>
         <description>Updates for the PeekMark direct edition.</description>
+        <item>
+            <title>1.2</title>
+            <pubDate>Mon, 16 Nov 2026 20:11:50 +0800</pubDate>
+            <link>https://peekmark.app/</link>
+            <sparkle:version>120108</sparkle:version>
+            <sparkle:shortVersionString>1.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://peekmark.app/downloads/PeekMark-Direct-1.2.dmg" length="11112982" type="application/octet-stream" sparkle:edSignature="mq2GyonBT1SQNahP+pOTZ0WrUHhZx6HIqqZO+whfBceVBeeaRN3QZC4jsNoTwXcvPNw/RDTi7eNGXUpXvPmMBg=="/>
+        </item>
+        <item>
+            <title>1.1</title>
+            <pubDate>Mon, 16 Nov 2026 12:18:25 +0800</pubDate>
+            <link>https://peekmark.app/#download</link>
+            <description>Redesigned reader, PDF previews, and Pro workspace with local search.</description>
+            <sparkle:version>110108</sparkle:version>
+            <sparkle:shortVersionString>1.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://peekmark.app/downloads/PeekMark-Direct-1.1.dmg" length="11024134" type="application/octet-stream" sparkle:edSignature="HmiRNxC0UkUCa1MB0A0XRZGFsgf+xJ2fmnQ+65k5TRDsmDt0rAGO2L1lDj2CQ60JoM0ax39xRqsEzF88OzmyAg=="/>
+        </item>
         <item>
             <title>1.0.2</title>
             <pubDate>Sat, 14 Nov 2026 20:00:26 +0800</pubDate>
@@ -12,7 +31,7 @@
             <sparkle:version>3</sparkle:version>
             <sparkle:shortVersionString>1.0.2</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://peekmark.app/downloads/PeekMark-Direct-1.0.2.dmg" length="10335756" type="application/octet-stream" sparkle:edSignature="8SLQUsEsFT08tIzEF0ZXAEGQ5bLQg+5xi9a+Cr1a1hvzwlyzcZu1+sDZo58Ix9Cuuuetj9W2HqviwUOGsGHvBQ==" />
+            <enclosure url="https://peekmark.app/downloads/PeekMark-Direct-1.0.2.dmg" length="10335756" type="application/octet-stream" sparkle:edSignature="8SLQUsEsFT08tIzEF0ZXAEGQ5bLQg+5xi9a+Cr1a1hvzwlyzcZu1+sDZo58Ix9Cuuuetj9W2HqviwUOGsGHvBQ=="/>
         </item>
     </channel>
 </rss>
